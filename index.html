@@ -1,1 +1,1294 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abstellkarte · Betriebswerk</title>
 
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f3f6f8,#10171e);
+  --surface: light-dark(#ffffff,#1a242e);
+  --surface2: light-dark(#f7f9fb,#202d38);
+  --text: light-dark(#182532,#edf3f7);
+  --muted: light-dark(#637384,#a9b7c4);
+  --border: light-dark(#dce4ea,#344451);
+  --accent: light-dark(#1769aa,#70b9f4);
+  --green: light-dark(#d9f3e4,#173c2b);
+  --greenText: light-dark(#17643b,#9ae0b7);
+  --blue: light-dark(#dceeff,#193d5b);
+  --blueText: light-dark(#1c6097,#a8d7ff);
+  --yellow: light-dark(#fff0c9,#4b3a16);
+  --yellowText: light-dark(#875c00,#ffda7a);
+  --red: light-dark(#ffe0df,#4b2426);
+  --redText: light-dark(#a52d2a,#ffaaa6);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+#app {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg);
+}
+
+header {
+  padding: 24px clamp(16px,4vw,42px) 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--blue);
+  color: var(--blueText);
+  font-size: 24px;
+}
+
+h1 {
+  font-size: clamp(21px,3vw,29px);
+  letter-spacing: -.7px;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pill {
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  padding: 7px 11px;
+  border-radius: 99px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d69b25;
+}
+
+main {
+  max-width: 1300px;
+  margin: auto;
+  padding: 25px clamp(14px,3vw,34px) 40px;
+}
+
+.topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+h2 {
+  font-size: 20px;
+  margin: 0 0 4px;
+  letter-spacing: -.3px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 13px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+button.danger {
+  color: var(--redText);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 12px;
+  margin-bottom: 23px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 15px 17px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 27px;
+  font-weight: 750;
+  letter-spacing: -.8px;
+  margin-top: 4px;
+}
+
+.stat-foot {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.legend {
+  display: flex;
+  gap: 13px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+}
+
+.track-list {
+  display: grid;
+  gap: 14px;
+}
+
+.track {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.track-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 17px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+.track-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 750;
+}
+
+.track-icon {
+  color: var(--muted);
+  font-size: 19px;
+}
+
+.track-meta {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.slots {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  gap: 10px;
+  position: relative;
+}
+
+.slot {
+  min-height: 112px;
+  text-align: left;
+  padding: 11px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transition: transform .12s;
+}
+
+.slot:hover {
+  transform: translateY(-2px);
+}
+
+.slot.free {
+  background: var(--green);
+  border-color: transparent;
+  color: var(--greenText);
+}
+
+.slot.occupied {
+  background: var(--blue);
+  border-color: transparent;
+  color: var(--blueText);
+}
+
+.slot.reserved {
+  background: var(--yellow);
+  border-color: transparent;
+  color: var(--yellowText);
+}
+
+.slot.blocked {
+  background: var(--red);
+  border-color: transparent;
+  color: var(--redText);
+}
+
+.slot-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  opacity: .9;
+}
+
+.slot-status {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 750;
+}
+
+.loco {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -.4px;
+  overflow-wrap: anywhere;
+}
+
+.slot-note {
+  font-size: 11px;
+  opacity: .85;
+  line-height: 1.3;
+}
+
+.slot-action {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: .8;
+}
+
+.buffer-stop {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+  writing-mode: vertical-rl;
+  min-width: 48px;
+}
+
+.buffer-symbol {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  position: relative;
+  border-left: 5px solid #b65b43;
+  border-right: 5px solid #b65b43;
+  writing-mode: horizontal-tb;
+}
+
+.buffer-symbol:before,
+.buffer-symbol:after {
+  content: "";
+  position: absolute;
+  left: -5px;
+  right: -5px;
+  height: 5px;
+  background: #b65b43;
+}
+
+.buffer-symbol:before {
+  top: 4px;
+}
+
+.buffer-symbol:after {
+  bottom: 4px;
+}
+
+.slots.with-buffer {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.slots.with-buffer .buffer-stop {
+  flex: 0 0 48px;
+}
+
+.slots.with-buffer .slot {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.footer-note {
+  margin-top: 20px;
+  padding: 13px 15px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #07111dcc;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal {
+  width: min(480px,100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 20px 80px #0004;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.modal h3 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.close {
+  padding: 4px 9px;
+  font-size: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--text);
+  padding: 11px;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.right-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  box-shadow: 0 5px 25px #0003;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+  z-index: 20;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+@media(max-width:850px) {
+  .slots {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+
+  .stats {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:480px) {
+  header {
+    align-items: flex-start;
+  }
+
+  .slots {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .stat {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 23px;
+  }
+
+  .track-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+<header>
+  <div class="brand">
+    <div class="logo">↔</div>
+    <div>
+      <h1>Abstellkarte</h1>
+      <div class="subtitle">Betriebswerk · Digitale Gleisbelegung</div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="pill">
+      <span class="dot"></span>
+      <span>Lokale Demo · nicht synchronisiert</span>
+    </div>
+    <button id="resetBtn">Demo zurücksetzen</button>
+  </div>
+</header>
+
+<main>
+
+<div class="topline">
+  <div>
+    <h2>Gleisübersicht</h2>
+    <div class="muted">
+      Abstellplätze auswählen, Belegung bearbeiten und Status im Blick behalten.
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="exportBtn">↓ Belegung exportieren</button>
+    <button class="primary" id="addBtn">＋ Lok abstellen</button>
+  </div>
+</div>
+
+<section class="stats">
+
+  <div class="stat">
+    <div class="stat-label">Abstellplätze gesamt</div>
+    <div class="stat-value" id="total">23</div>
+    <div class="stat-foot">
+      über alle Gleise · Prellbock nicht mitgezählt
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">Belegt</div>
+    <div class="stat-value" id="occupied">0</div>
+    <div class="stat-foot" id="occupiedFoot">0 % Auslastung</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">Frei</div>
+    <div class="stat-value" id="free">0</div>
+    <div class="stat-foot">sofort verfügbar</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">Reserviert / gesperrt</div>
+    <div class="stat-value" id="other">0</div>
+    <div class="stat-foot">nicht regulär verfügbar</div>
+  </div>
+
+</section>
+
+<div class="legend">
+  <span><i class="swatch" style="background:#35a66b"></i> Frei</span>
+  <span><i class="swatch" style="background:#368ed0"></i> Belegt</span>
+  <span><i class="swatch" style="background:#d8a22d"></i> Reserviert</span>
+  <span><i class="swatch" style="background:#d9534f"></i> Gesperrt</span>
+</div>
+
+<div class="track-list" id="tracks"></div>
+
+<div class="footer-note">
+  <strong>Hinweis zum Prototyp:</strong>
+  Änderungen werden in diesem Browser gespeichert.
+  Für echten Echtzeitbetrieb mit mehreren Mitarbeitern und Geräten
+  muss eine gemeinsame Datenbank mit Benutzerrechten und
+  Live-Synchronisierung angebunden werden.
+</div>
+
+</main>
+</div>
+
+<div class="modal-backdrop" id="backdrop">
+
+  <div class="modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="modalTitle">
+
+    <div class="modal-head">
+
+      <div>
+        <h3 id="modalTitle">Abstellplatz bearbeiten</h3>
+        <div class="muted" id="modalSub">
+          Gleis · Platz
+        </div>
+      </div>
+
+      <button class="close"
+              id="closeBtn"
+              aria-label="Schließen">
+        ×
+      </button>
+
+    </div>
+
+    <div class="field">
+
+      <label for="status">STATUS</label>
+
+      <select id="status">
+        <option value="free">Frei</option>
+        <option value="occupied">Belegt</option>
+        <option value="reserved">Reserviert</option>
+        <option value="blocked">Gesperrt</option>
+      </select>
+
+    </div>
+
+    <div class="field" id="locoField">
+
+      <label for="locoInput">
+        LOKNUMMER / FAHRZEUG-ID
+      </label>
+
+      <input
+        id="locoInput"
+        placeholder="z. B. 218 456-1"
+        autocomplete="off"
+      >
+
+    </div>
+
+    <div class="field">
+
+      <label for="noteInput">
+        BEMERKUNG (OPTIONAL)
+      </label>
+
+      <textarea
+        id="noteInput"
+        rows="2"
+        placeholder="z. B. Richtung Ausfahrt, Besonderheiten …"
+      ></textarea>
+
+    </div>
+
+    <div class="modal-actions">
+
+      <button class="danger" id="clearBtn">
+        Platz freigeben
+      </button>
+
+      <div class="right-actions">
+        <button id="cancelBtn">Abbrechen</button>
+        <button class="primary" id="saveBtn">Speichern</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+const makeSlots = (prefix, count) =>
+  Array.from(
+    { length: count },
+    (_, i) => ({
+      id: `${prefix}${i + 1}`,
+      status: 'free',
+      loco: '',
+      note: ''
+    })
+  );
+
+const initial = [
+
+  {
+    name: 'Gleis 39W',
+    description: '9 Abstellplätze',
+    slots: makeSlots('39W', 9)
+  },
+
+  {
+    name: 'Gleis 40W',
+    description: '9 Abstellplätze',
+    slots: makeSlots('40W', 9)
+  },
+
+  {
+    name: 'Gleis 41W',
+    description: '2 Abstellplätze',
+    slots: makeSlots('41W', 2)
+  },
+
+  {
+    name: 'Gleis 42W',
+    description: '3 Abstellplätze · Prellbock am Gleisende',
+    slots: makeSlots('42W', 3),
+    bufferStop: true
+  }
+
+];
+
+const labels = {
+  free: 'Frei',
+  occupied: 'Belegt',
+  reserved: 'Reserviert',
+  blocked: 'Gesperrt'
+};
+
+let tracks = load();
+let selected = null;
+
+function load() {
+
+  try {
+
+    const saved =
+      localStorage.getItem('abstellkarte-demo');
+
+    return saved
+      ? JSON.parse(saved)
+      : structuredClone(initial);
+
+  } catch (e) {
+
+    return structuredClone(initial);
+
+  }
+
+}
+
+function persist() {
+
+  try {
+
+    localStorage.setItem(
+      'abstellkarte-demo',
+      JSON.stringify(tracks)
+    );
+
+  } catch (e) {}
+
+}
+
+function esc(s = '') {
+
+  return String(s).replace(
+    /[&<>"']/g,
+    c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[c])
+  );
+
+}
+
+function render() {
+
+  const all = tracks.flatMap(t => t.slots);
+
+  const occupied =
+    all.filter(s => s.status === 'occupied').length;
+
+  const free =
+    all.filter(s => s.status === 'free').length;
+
+  const other =
+    all.length - occupied - free;
+
+  document.getElementById('total').textContent =
+    all.length;
+
+  document.getElementById('occupied').textContent =
+    occupied;
+
+  document.getElementById('occupiedFoot').textContent =
+    (all.length
+      ? Math.round(occupied / all.length * 100)
+      : 0) + ' % Auslastung';
+
+  document.getElementById('free').textContent =
+    free;
+
+  document.getElementById('other').textContent =
+    other;
+
+  document.getElementById('tracks').innerHTML =
+    tracks.map((track, trackIndex) => `
+
+      <section class="track">
+
+        <div class="track-head">
+
+          <div class="track-name">
+
+            <span class="track-icon">≋</span>
+
+            <span>
+              ${esc(track.name)}
+              <span class="track-meta">
+                · ${esc(track.description)}
+              </span>
+            </span>
+
+          </div>
+
+          <div class="track-meta">
+            ${
+              track.slots.filter(
+                s => s.status === 'occupied'
+              ).length
+            }
+            /
+            ${track.slots.length}
+            Plätze belegt
+          </div>
+
+        </div>
+
+        <div class="slots${track.bufferStop ? ' with-buffer' : ''}">
+
+          ${
+            track.bufferStop
+              ? `
+                <div
+                  class="buffer-stop"
+                  aria-label="Prellbock am linken Rand von Gleis 42W"
+                >
+                  <span
+                    class="buffer-symbol"
+                    aria-hidden="true"
+                  ></span>
+                  <span>PRELLBOCK</span>
+                </div>
+              `
+              : ''
+          }
+
+          ${track.slots.map((slot, slotIndex) => `
+
+            <button
+              class="slot ${slot.status}"
+              data-track="${trackIndex}"
+              data-slot="${slotIndex}"
+              aria-label="${esc(track.name)} Platz ${esc(slot.id)} bearbeiten"
+            >
+
+              <div class="slot-top">
+                <strong>Platz ${esc(slot.id)}</strong>
+                <span>↗</span>
+              </div>
+
+              <div class="slot-status">
+                ${labels[slot.status]}
+              </div>
+
+              <div class="loco">
+
+                ${
+                  slot.status === 'occupied'
+                    ? esc(slot.loco || 'Loknummer fehlt')
+                    : slot.status === 'free'
+                      ? '—'
+                      : slot.status === 'reserved'
+                        ? 'Reserviert'
+                        : 'Gesperrt'
+                }
+
+              </div>
+
+              ${
+                slot.note
+                  ? `<div class="slot-note">${esc(slot.note)}</div>`
+                  : ''
+              }
+
+              <div class="slot-action">
+                Klicken zum Bearbeiten
+              </div>
+
+            </button>
+
+          `).join('')}
+
+        </div>
+
+      </section>
+
+    `).join('');
+
+  document
+    .querySelectorAll('.slot')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        () =>
+          openEditor(
+            +button.dataset.track,
+            +button.dataset.slot
+          )
+      );
+
+    });
+
+}
+
+function openEditor(trackIndex, slotIndex) {
+
+  selected = {
+    trackIndex,
+    slotIndex
+  };
+
+  const slot =
+    tracks[trackIndex].slots[slotIndex];
+
+  document.getElementById('modalTitle').textContent =
+    'Abstellplatz bearbeiten';
+
+  document.getElementById('modalSub').textContent =
+    tracks[trackIndex].name +
+    ' · Platz ' +
+    slot.id;
+
+  document.getElementById('status').value =
+    slot.status;
+
+  document.getElementById('locoInput').value =
+    slot.loco || '';
+
+  document.getElementById('noteInput').value =
+    slot.note || '';
+
+  syncLoco();
+
+  document
+    .getElementById('backdrop')
+    .classList.add('open');
+
+  if (slot.status === 'occupied') {
+
+    document
+      .getElementById('locoInput')
+      .focus();
+
+  }
+
+}
+
+function syncLoco() {
+
+  document.getElementById('locoField').style.display =
+    document.getElementById('status').value === 'occupied'
+      ? 'grid'
+      : 'none';
+
+}
+
+function closeModal() {
+
+  document
+    .getElementById('backdrop')
+    .classList.remove('open');
+
+  selected = null;
+
+}
+
+function toast(message) {
+
+  const element =
+    document.getElementById('toast');
+
+  element.textContent = message;
+
+  element.classList.add('show');
+
+  setTimeout(
+    () => element.classList.remove('show'),
+    2400
+  );
+
+}
+
+document
+  .getElementById('status')
+  .addEventListener('change', syncLoco);
+
+document
+  .getElementById('closeBtn')
+  .onclick = closeModal;
+
+document
+  .getElementById('cancelBtn')
+  .onclick = closeModal;
+
+document
+  .getElementById('backdrop')
+  .addEventListener('click', event => {
+
+    if (event.target.id === 'backdrop') {
+      closeModal();
+    }
+
+  });
+
+document.addEventListener(
+  'keydown',
+  event => {
+
+    if (event.key === 'Escape') {
+      closeModal();
+    }
+
+  }
+);
+
+document
+  .getElementById('saveBtn')
+  .onclick = () => {
+
+    if (!selected) return;
+
+    const slot =
+      tracks[selected.trackIndex]
+        .slots[selected.slotIndex];
+
+    const status =
+      document.getElementById('status').value;
+
+    const loco =
+      document.getElementById('locoInput')
+        .value.trim();
+
+    if (status === 'occupied' && !loco) {
+
+      document
+        .getElementById('locoInput')
+        .focus();
+
+      toast('Bitte eine Loknummer eintragen.');
+
+      return;
+
+    }
+
+    slot.status = status;
+
+    slot.loco =
+      status === 'occupied'
+        ? loco
+        : '';
+
+    slot.note =
+      document
+        .getElementById('noteInput')
+        .value.trim();
+
+    persist();
+    render();
+    closeModal();
+
+    toast('Abstellplatz aktualisiert.');
+
+  };
+
+document
+  .getElementById('clearBtn')
+  .onclick = () => {
+
+    if (!selected) return;
+
+    const slot =
+      tracks[selected.trackIndex]
+        .slots[selected.slotIndex];
+
+    slot.status = 'free';
+    slot.loco = '';
+    slot.note = '';
+
+    persist();
+    render();
+    closeModal();
+
+    toast('Platz wurde freigegeben.');
+
+  };
+
+document
+  .getElementById('addBtn')
+  .onclick = () => {
+
+    const free =
+      tracks
+        .flatMap(
+          (track, trackIndex) =>
+            track.slots.map(
+              (slot, slotIndex) => ({
+                slot,
+                trackIndex,
+                slotIndex
+              })
+            )
+        )
+        .find(item => item.slot.status === 'free');
+
+    if (!free) {
+
+      toast('Es sind keine freien Plätze vorhanden.');
+
+      return;
+
+    }
+
+    openEditor(
+      free.trackIndex,
+      free.slotIndex
+    );
+
+    document.getElementById('status').value =
+      'occupied';
+
+    syncLoco();
+
+    document
+      .getElementById('locoInput')
+      .focus();
+
+  };
+
+document
+  .getElementById('resetBtn')
+  .onclick = () => {
+
+    if (
+      confirm(
+        'Demo-Belegung wirklich zurücksetzen?'
+      )
+    ) {
+
+      tracks = structuredClone(initial);
+
+      persist();
+      render();
+
+      toast('Demo zurückgesetzt.');
+
+    }
+
+  };
+
+document
+  .getElementById('exportBtn')
+  .onclick = () => {
+
+    const rows = [
+      [
+        'Gleis',
+        'Platz',
+        'Status',
+        'Loknummer',
+        'Bemerkung'
+      ],
+
+      ...tracks.flatMap(
+        track =>
+          track.slots.map(
+            slot => [
+              track.name,
+              slot.id,
+              labels[slot.status],
+              slot.loco || '',
+              slot.note || ''
+            ]
+          )
+      )
+    ];
+
+    const csv =
+      '\ufeff' +
+      rows
+        .map(
+          row =>
+            row
+              .map(
+                value =>
+                  '"' +
+                  String(value).replace(/"/g, '""') +
+                  '"'
+              )
+              .join(';')
+        )
+        .join('\r\n');
+
+    const link =
+      document.createElement('a');
+
+    link.href =
+      URL.createObjectURL(
+        new Blob(
+          [csv],
+          {
+            type:
+              'text/csv;charset=utf-8;'
+          }
+        )
+      );
+
+    link.download =
+      'abstellkarte.csv';
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+
+    toast('CSV-Export erstellt.');
+
+  };
+
+render();
+
+</script>
+
+</body>
+</html>
