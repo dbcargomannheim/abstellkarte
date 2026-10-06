@@ -5,685 +5,553 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abstellkarte · Betriebswerk</title>
 <style>
-:root {
-  color-scheme: light dark;
-  --bg: light-dark(#f3f6f8,#10171e);
-  --surface: light-dark(#ffffff,#1a242e);
-  --surface2: light-dark(#f7f9fb,#202d38);
-  --text: light-dark(#182532,#edf3f7);
-  --muted: light-dark(#637384,#a9b7c4);
-  --border: light-dark(#dce4ea,#344451);
-  --accent: light-dark(#1769aa,#70b9f4);
-  --green: light-dark(#d9f3e4,#173c2b);
-  --greenText: light-dark(#17643b,#9ae0b7);
-  --blue: light-dark(#dceeff,#193d5b);
-  --blueText: light-dark(#1c6097,#a8d7ff);
-  --yellow: light-dark(#fff0c9,#4b3a16);
-  --yellowText: light-dark(#875c00,#ffda7a);
-  --red: light-dark(#ffe0df,#4b2426);
-  --redText: light-dark(#a52d2a,#ffaaa6);
+:root{
+  color-scheme:light dark;
+  --bg:light-dark(#f3f6f8,#10171e);
+  --surface:light-dark(#fff,#1a242e);
+  --surface2:light-dark(#f7f9fb,#202d38);
+  --text:light-dark(#182532,#edf3f7);
+  --muted:light-dark(#637384,#a9b7c4);
+  --border:light-dark(#dce4ea,#344451);
+  --accent:light-dark(#1769aa,#70b9f4);
+  --green:light-dark(#d9f3e4,#173c2b);
+  --greenText:light-dark(#17643b,#9ae0b7);
+  --blue:light-dark(#dceeff,#193d5b);
+  --blueText:light-dark(#1c6097,#a8d7ff);
+  --yellow:light-dark(#fff0c9,#4b3a16);
+  --yellowText:light-dark(#875c00,#ffda7a);
+  --red:light-dark(#ffe0df,#4b2426);
+  --redText:light-dark(#a52d2a,#ffaaa6);
 }
 
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+
+html,body{
+  width:100%;
+  margin:0;
+  overflow-x:hidden;
 }
 
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
+body{
+  background:var(--bg);
+  color:var(--text);
+  font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+button,input,select,textarea{font:inherit}
+
+button{
+  cursor:pointer;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:9px 13px;
+  background:var(--surface);
+  color:var(--text);
+  font-weight:600;
 }
 
-#app {
-  min-height: 100vh;
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  background: var(--bg);
-  border-radius: 0;
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{color:var(--redText)}
+
+header{
+  padding:24px clamp(16px,4vw,42px) 20px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
 }
 
-header {
-  padding: 24px clamp(16px,4vw,42px) 20px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:var(--blue);
+  color:var(--blueText);
+  font-size:24px;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 13px;
+h1{
+  font-size:clamp(21px,3vw,29px);
+  letter-spacing:-.7px;
+  margin:0;
 }
 
-.logo {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: var(--blue);
-  color: var(--blueText);
-  font-size: 24px;
+.subtitle{color:var(--muted);font-size:13px;margin-top:3px}
+
+.header-right{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
 }
 
-h1 {
-  font-size: clamp(21px,3vw,29px);
-  letter-spacing: -.7px;
-  margin: 0;
+.pill{
+  border:1px solid var(--border);
+  background:var(--surface2);
+  padding:7px 11px;
+  border-radius:99px;
+  color:var(--muted);
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  gap:7px;
 }
 
-.subtitle {
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 3px;
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#d69b25;
 }
 
-.header-right {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
+main{
+  max-width:1300px;
+  margin:auto;
+  padding:25px clamp(14px,3vw,34px) 40px;
 }
 
-.pill {
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  padding: 7px 11px;
-  border-radius: 99px;
-  color: var(--muted);
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
+.topline{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
 }
 
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #d69b25;
+h2{font-size:20px;margin:0 0 4px;letter-spacing:-.3px}
+.muted{color:var(--muted);font-size:13px}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
 }
 
-main {
-  max-width: 1300px;
-  margin: auto;
-  padding: 25px clamp(14px,3vw,34px) 40px;
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:23px;
 }
 
-.topline {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
+.stat{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:15px 17px;
 }
 
-h2 {
-  font-size: 20px;
-  margin: 0 0 4px;
-  letter-spacing: -.3px;
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{
+  font-size:27px;
+  font-weight:750;
+  letter-spacing:-.8px;
+  margin-top:4px;
+}
+.stat-foot{font-size:11px;color:var(--muted);margin-top:2px}
+
+.legend{
+  display:flex;
+  gap:13px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
 }
 
-.muted {
-  color: var(--muted);
-  font-size: 13px;
+.legend span{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--muted);
+  font-size:12px;
 }
 
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.swatch{
+  width:9px;
+  height:9px;
+  border-radius:3px;
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
+.track-list{
+  display:grid;
+  gap:14px;
+  min-width:0;
 }
 
-button {
-  cursor: pointer;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 9px 13px;
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 600;
+.track{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  min-width:0;
 }
 
-button:hover {
-  border-color: var(--accent);
+.track-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:13px 17px;
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
 }
 
-button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
+.track-name{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:750;
+  min-width:0;
 }
 
-button.danger {
-  color: var(--redText);
+.track-icon{color:var(--muted);font-size:19px}
+.track-meta{font-size:12px;color:var(--muted);font-weight:400}
+
+.slots{
+  padding:16px;
+  overflow-x:auto;
+  overflow-y:hidden;
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4,minmax(0,1fr));
-  gap: 12px;
-  margin-bottom: 23px;
+.track-diagram{
+  display:grid;
+  grid-template-columns:repeat(12,minmax(76px,1fr));
+  gap:10px;
+  align-items:stretch;
+  min-width:980px;
 }
 
-.stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  padding: 15px 17px;
+.slot{
+  min-height:112px;
+  text-align:left;
+  padding:11px;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  transition:transform .12s;
 }
 
-.stat-label {
-  font-size: 12px;
-  color: var(--muted);
+.slot:hover{transform:translateY(-2px)}
+
+.slot.free{
+  background:var(--green);
+  border-color:transparent;
+  color:var(--greenText);
 }
 
-.stat-value {
-  font-size: 27px;
-  font-weight: 750;
-  letter-spacing: -.8px;
-  margin-top: 4px;
+.slot.occupied{
+  background:var(--blue);
+  border-color:transparent;
+  color:var(--blueText);
 }
 
-.stat-foot {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
+.slot.reserved{
+  background:var(--yellow);
+  border-color:transparent;
+  color:var(--yellowText);
 }
 
-.legend {
-  display: flex;
-  gap: 13px;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
+.slot.blocked{
+  background:var(--red);
+  border-color:transparent;
+  color:var(--redText);
 }
 
-.legend span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted);
-  font-size: 12px;
+.fixed-slot{
+  cursor:default!important;
+  transform:none!important;
 }
 
-.swatch {
-  width: 9px;
-  height: 9px;
-  border-radius: 3px;
+.fixed-slot:hover{border-color:transparent!important}
+
+.slot-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:11px;
+  opacity:.9;
 }
 
-.track-list {
-  display: grid;
-  gap: 14px;
-  min-width: 0;
+.slot-status{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  font-weight:750;
 }
 
-.track {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  min-width: 0;
+.loco{
+  font-size:17px;
+  font-weight:800;
+  letter-spacing:-.4px;
+  overflow-wrap:anywhere;
 }
 
-.track-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 17px;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  min-width: 0;
+.slot-note{
+  font-size:11px;
+  opacity:.85;
+  line-height:1.3;
 }
 
-.track-name {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 750;
-  min-width: 0;
+.slot-action{
+  margin-top:auto;
+  font-size:11px;
+  opacity:.8;
 }
 
-.track-icon {
-  color: var(--muted);
-  font-size: 19px;
+.infra{
+  min-height:112px;
+  border:2px solid var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:750;
+  padding:8px;
+  min-width:0;
 }
 
-.track-meta {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 400;
+.stage{
+  position:relative;
+  overflow:hidden;
 }
 
-.slots {
-  padding: 16px;
-  display: block;
-  position: relative;
-  min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+.stage:before,
+.stage:after{
+  content:"";
+  position:absolute;
+  left:10px;
+  right:10px;
+  height:5px;
+  background:var(--border);
+  top:35px;
+  box-shadow:0 35px 0 var(--border);
 }
 
-.slot {
-  min-height: 112px;
-  text-align: left;
-  padding: 11px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  transition: transform .12s;
+.switch{
+  background:var(--surface2);
+  color:var(--muted);
+  border:2px solid var(--border);
+  font-size:11px;
 }
 
-.slot:hover {
-  transform: translateY(-2px);
+.tank{
+  background:var(--blue);
+  color:var(--blueText);
+  border-color:transparent;
 }
 
-.slot.free {
-  background: var(--green);
-  border-color: transparent;
-  color: var(--greenText);
+.hilfszug{
+  min-height:112px;
+  border:2px solid var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:750;
+  white-space:nowrap;
 }
 
-.slot.occupied {
-  background: var(--blue);
-  border-color: transparent;
-  color: var(--blueText);
+.buffer-stop{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 8px;
+  border:2px solid var(--border);
+  border-radius:8px;
+  background:var(--surface2);
+  color:var(--muted);
+  font-size:11px;
+  font-weight:750;
+  min-width:76px;
 }
 
-.slot.reserved {
-  background: var(--yellow);
-  border-color: transparent;
-  color: var(--yellowText);
-}
-
-.slot.blocked {
-  background: var(--red);
-  border-color: transparent;
-  color: var(--redText);
-}
-
-.slot-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  opacity: .9;
-}
-
-.slot-status {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  font-weight: 750;
-}
-
-.loco {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -.4px;
-  overflow-wrap: anywhere;
-}
-
-.slot-note {
-  font-size: 11px;
-  opacity: .85;
-  line-height: 1.3;
-}
-
-.slot-action {
-  margin-top: auto;
-  font-size: 11px;
-  opacity: .8;
-}
-
-.buffer-stop {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 8px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface2);
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 750;
-  writing-mode: vertical-rl;
-  min-width: 48px;
-}
-
-.buffer-symbol {
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
-  position: relative;
-  border-left: 5px solid #b65b43;
-  border-right: 5px solid #b65b43;
-  writing-mode: horizontal-tb;
+.buffer-symbol{
+  width:30px;
+  height:30px;
+  flex:0 0 30px;
+  position:relative;
+  border-left:5px solid #b65b43;
+  border-right:5px solid #b65b43;
 }
 
 .buffer-symbol:before,
-.buffer-symbol:after {
-  content: "";
-  position: absolute;
-  left: -5px;
-  right: -5px;
-  height: 5px;
-  background: #b65b43;
+.buffer-symbol:after{
+  content:"";
+  position:absolute;
+  left:-5px;
+  right:-5px;
+  height:5px;
+  background:#b65b43;
 }
 
-.buffer-symbol:before {
-  top: 4px;
+.buffer-symbol:before{top:4px}
+.buffer-symbol:after{bottom:4px}
+
+.special-row{
+  margin-top:12px;
+  border-top:1px dashed var(--border);
+  padding-top:12px;
 }
 
-.buffer-symbol:after {
-  bottom: 4px;
+.special-title{
+  font-size:11px;
+  font-weight:750;
+  color:var(--muted);
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
 }
 
-.slots.with-buffer {
-  display: flex;
-  align-items: stretch;
-  gap: 10px;
+.special-item{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  background:var(--surface2);
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
 }
 
-.slots.with-buffer .buffer-stop {
-  flex: 0 0 48px;
+.special-item>div:first-child{
+  display:grid;
+  gap:2px;
+  font-size:13px;
 }
 
-.slots.with-buffer .slot {
-  flex: 1 1 0;
-  min-width: 0;
+.footer-note{
+  margin-top:20px;
+  padding:13px 15px;
+  border:1px dashed var(--border);
+  border-radius:10px;
+  color:var(--muted);
+  font-size:12px;
 }
 
-.footer-note {
-  margin-top: 20px;
-  padding: 13px 15px;
-  border: 1px dashed var(--border);
-  border-radius: 10px;
-  color: var(--muted);
-  font-size: 12px;
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:#07111dcc;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:10;
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: #07111dcc;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 10;
+.modal-backdrop.open{display:flex}
+
+.modal{
+  width:min(560px,100%);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:22px;
+  box-shadow:0 20px 80px #0004;
 }
 
-.modal-backdrop.open {
-  display: flex;
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:start;
+  margin-bottom:18px;
 }
 
-.modal {
-  width: min(480px,100%);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 20px 80px #0004;
+.modal h3{margin:0;font-size:21px}
+.close{padding:4px 9px;font-size:20px}
+
+.field{
+  display:grid;
+  gap:6px;
+  margin:14px 0;
 }
 
-.modal-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  align-items: start;
-  margin-bottom: 18px;
+label{
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
 }
 
-.modal h3 {
-  margin: 0;
-  font-size: 21px;
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:var(--bg);
+  color:var(--text);
+  padding:11px;
+  outline:none;
 }
 
-.close {
-  padding: 4px 9px;
-  font-size: 20px;
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent);
 }
 
-.field {
-  display: grid;
-  gap: 6px;
-  margin: 14px 0;
+.modal-actions{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:22px;
 }
 
-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
+.right-actions{
+  display:flex;
+  gap:8px;
 }
 
-input,
-select,
-textarea {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: var(--bg);
-  color: var(--text);
-  padding: 11px;
-  outline: none;
+.hint{
+  font-size:11px;
+  color:var(--muted);
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--accent);
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--text);
+  color:var(--bg);
+  padding:11px 16px;
+  border-radius:10px;
+  font-size:13px;
+  box-shadow:0 5px 25px #0003;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s;
+  z-index:20;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 22px;
+.toast.show{opacity:1}
+
+@media(max-width:850px){
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
-.right-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text);
-  color: var(--bg);
-  padding: 11px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  box-shadow: 0 5px 25px #0003;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .2s;
-  z-index: 20;
-}
-
-.toast.show {
-  opacity: 1;
-}
-
-.fixed-slot {
-  cursor: default !important;
-  transform: none !important;
-}
-
-.fixed-slot:hover {
-  border-color: var(--border) !important;
-}
-
-.track-diagram {
-  display: grid;
-  grid-template-columns: repeat(12,minmax(76px,1fr));
-  gap: 10px;
-  align-items: stretch;
-  min-width: 980px;
-}
-
-.track-diagram .slot,
-.track-diagram .infra {
-  min-width: 0;
-}
-
-.infra {
-  min-height: 112px;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface2);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 750;
-  padding: 8px;
-  writing-mode: horizontal-tb;
-  white-space: nowrap;
-}
-
-.stage {
-  position: relative;
-  overflow: hidden;
-}
-
-.switch {
-  position: relative;
-}
-
-.switch:before,
-.switch:after {
-  display: none;
-}
-
-.tank {
-  background: var(--blue);
-  color: var(--blueText);
-}
-
-.hilfszug {
-  min-height: 112px;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface2);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 750;
-  writing-mode: horizontal-tb;
-  white-space: nowrap;
-}
-
-.special-row {
-  margin-top: 12px;
-  border-top: 1px dashed var(--border);
-  padding-top: 12px;
-}
-
-.special-title {
-  font-size: 11px;
-  font-weight: 750;
-  color: var(--muted);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-}
-
-.special-item {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  background: var(--surface2);
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-}
-
-.special-item > div:first-child {
-  display: grid;
-  gap: 2px;
-  font-size: 13px;
-}
-
-.special-item > div:first-child strong,
-.special-item > div:first-child .muted,
-.special-item > div:first-child .slot-note {
-  font-size: 13px;
-}
-
-.special-item button {
-  padding: 6px 9px;
-}
-
-.modal-wide {
-  width: min(560px,100%);
-}
-
-.hint {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.track-list .special-row {
-  display: none;
-}
-
-@media(max-width:850px) {
-  .stats {
-    grid-template-columns: repeat(2,minmax(0,1fr));
-  }
-}
-
-@media(max-width:480px) {
-  header {
-    align-items: flex-start;
-  }
-
-  .stat {
-    padding: 12px;
-  }
-
-  .stat-value {
-    font-size: 23px;
-  }
-
-  .track-head {
-    align-items: flex-start;
-    flex-direction: column;
+@media(max-width:480px){
+  header{align-items:flex-start}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat{padding:12px}
+  .stat-value{font-size:23px}
+  .track-head{
+    align-items:flex-start;
+    flex-direction:column;
   }
 }
 </style>
@@ -730,7 +598,7 @@ textarea:focus {
 <section class="stats">
   <div class="stat">
     <div class="stat-label">Abstellplätze gesamt</div>
-    <div class="stat-value" id="total">23</div>
+    <div class="stat-value" id="total">0</div>
     <div class="stat-foot">über alle Gleise</div>
   </div>
 
@@ -771,10 +639,7 @@ textarea:focus {
         <span class="track-meta">· außerhalb des Betriebswerks</span>
       </span>
     </div>
-
-    <div class="track-meta" id="otherStorageMeta">
-      0 Abstellungen
-    </div>
+    <div class="track-meta" id="otherStorageMeta">0 Abstellungen</div>
   </div>
 
   <div id="otherStorageList" style="padding:16px;display:grid;gap:10px;"></div>
@@ -783,32 +648,26 @@ textarea:focus {
 <div class="footer-note">
   <strong>Hinweis zum Prototyp:</strong>
   Änderungen werden in diesem Browser gespeichert.
-  Für echten Echtzeitbetrieb mit mehreren Mitarbeitern und Geräten muss später
-  eine gemeinsame Datenbank mit Benutzerrechten und Live-Synchronisierung
-  angebunden werden. Die Gleise und Loknummern sind Beispieldaten.
+  Für echten Echtzeitbetrieb mit mehreren Mitarbeitern und Geräten muss eine
+  gemeinsame Datenbank mit Benutzerrechten und Live-Synchronisierung angebunden werden.
 </div>
 
 </main>
 </div>
 
 <div class="modal-backdrop" id="backdrop">
-  <div class="modal modal-wide"
-       role="dialog"
-       aria-modal="true"
-       aria-labelledby="modalTitle">
+  <div class="modal" role="dialog" aria-modal="true">
 
     <div class="modal-head">
       <div>
         <h3 id="modalTitle">Lok abstellen</h3>
         <div class="muted" id="modalSub">Stellplatz auswählen</div>
       </div>
-
       <button class="close" id="closeBtn" aria-label="Schließen">×</button>
     </div>
 
     <div class="field" id="placementField">
       <label for="placement">ABSTELLART</label>
-
       <select id="placement">
         <option value="regular">Regulärer Stellplatz</option>
         <option value="special">Sondergleis / Sonderabstellplatz</option>
@@ -817,26 +676,17 @@ textarea:focus {
 
     <div class="field" id="slotChoiceField">
       <label for="slotChoice">STELLPLATZ</label>
-
       <select id="slotChoice"></select>
-
-      <div class="hint">
-        Es werden nur freie reguläre Stellplätze angeboten.
-      </div>
+      <div class="hint">Es werden nur freie reguläre Stellplätze angeboten.</div>
     </div>
 
     <div class="field" id="specialTrackField" style="display:none">
       <label for="specialTrackInput">GLEIS / ABSTELLORT</label>
-
-      <input
-        id="specialTrackInput"
-        placeholder="z. B. 43W, Hofgleis, Werkstatt …"
-        autocomplete="off">
+      <input id="specialTrackInput" placeholder="z. B. 43W, Hofgleis, Werkstatt …">
     </div>
 
     <div class="field">
       <label for="status">STATUS</label>
-
       <select id="status">
         <option value="free">Frei</option>
         <option value="occupied">Belegt</option>
@@ -847,26 +697,19 @@ textarea:focus {
 
     <div class="field" id="locoField">
       <label for="locoInput">TFZ-NUMMER</label>
-
       <input
         id="locoInput"
         inputmode="numeric"
         maxlength="7"
         placeholder="123 456"
-        autocomplete="off">
-
-      <div class="hint">
-        Exakt 6 Ziffern, Anzeige im Format XXX XXX.
-      </div>
+        autocomplete="off"
+      >
+      <div class="hint">Exakt 6 Ziffern, Anzeige im Format XXX XXX.</div>
     </div>
 
     <div class="field">
       <label for="noteInput">BEMERKUNG (OPTIONAL)</label>
-
-      <textarea
-        id="noteInput"
-        rows="2"
-        placeholder="z. B. Richtung Ausfahrt, Besonderheiten …"></textarea>
+      <textarea id="noteInput" rows="2" placeholder="z. B. Richtung Ausfahrt, Besonderheiten …"></textarea>
     </div>
 
     <div class="modal-actions">
@@ -884,1012 +727,741 @@ textarea:focus {
 <div class="toast" id="toast"></div>
 
 <script>
-const makeSlots = (prefix,count) =>
-  Array.from(
-    {length:count},
-    (_,i)=>({
-      id:`${prefix}${i+1}`,
-      status:'free',
-      loco:'',
-      note:''
-    })
-  );
+"use strict";
+
+const STORAGE_KEY = "abstellkarte-demo";
+const OTHER_KEY = "abstellkarte-other-storage";
+
+const makeSlots = (prefix, count) => {
+  return Array.from({length: count}, (_, i) => ({
+    id: prefix + (i + 1),
+    status: "free",
+    loco: "",
+    note: "",
+    fixed: false
+  }));
+};
 
 const initial = [
   {
-    name:'Gleis 39W',
-    description:'9 Abstellplätze · Schiebebühne rechts',
-    slots:makeSlots('39W',9).reverse(),
-    stage:true
+    name: "Gleis 39W",
+    description: "9 Abstellplätze · Schiebebühne rechts",
+    slots: makeSlots("39W", 9).reverse()
   },
   {
-    name:'Gleis 40W',
-    description:'9 Abstellplätze · Schiebebühne rechts',
-    slots:makeSlots('40W',9).reverse(),
-    stage:true
+    name: "Gleis 40W",
+    description: "9 Abstellplätze · Schiebebühne rechts",
+    slots: makeSlots("40W", 9).reverse()
   },
   {
-    name:'Gleis 41W',
-    description:'41Mitte · Schiebebühne · 41W1–41W2 · Weiche · Tankstelle',
-    slots:[
+    name: "Gleis 41W",
+    description: "41Mitte · Schiebebühne · 41W1–41W2 · Weiche · Tankstelle",
+    slots: [
       {
-        id:'41Mitte',
-        status:'free',
-        loco:'',
-        note:'',
-        fixed:false
+        id: "41Mitte",
+        status: "free",
+        loco: "",
+        note: "",
+        fixed: false
       },
-      ...makeSlots('41W',2)
-    ],
-    stage:true
+      ...makeSlots("41W", 2)
+    ]
   },
   {
-    name:'Gleis 42W',
-    description:'Hilfszug · 42Mitte · Weiche · 42W1–42W3 · Prellbock',
-    slots:[
+    name: "Gleis 42W",
+    description: "Hilfszug · 42Mitte · Weiche · 42W1–42W3 · Prellbock",
+    slots: [
       {
-        id:'Hilfszug',
-        status:'occupied',
-        loco:'',
-        note:'Hilfszug · dauerhaft belegt',
-        fixed:true
+        id: "Hilfszug",
+        status: "occupied",
+        loco: "",
+        note: "Hilfszug · dauerhaft belegt",
+        fixed: true
       },
       {
-        id:'42Mitte',
-        status:'free',
-        loco:'',
-        note:'',
-        fixed:false
+        id: "42Mitte",
+        status: "free",
+        loco: "",
+        note: "",
+        fixed: false
       },
-      ...makeSlots('42W',3)
-    ],
-    bufferStop:true
+      ...makeSlots("42W", 3)
+    ]
   }
 ];
 
 const labels = {
-  free:'Frei',
-  occupied:'Belegt',
-  reserved:'Reserviert',
-  blocked:'Gesperrt'
+  free: "Frei",
+  occupied: "Belegt",
+  reserved: "Reserviert",
+  blocked: "Gesperrt"
 };
 
-let tracks = load();
+let tracks = loadTracks();
 let selected = null;
+let addChoices = [];
 
-function load() {
+function cloneInitial() {
+  return JSON.parse(JSON.stringify(initial));
+}
+
+function loadTracks() {
   try {
-    const s = localStorage.getItem('abstellkarte-demo');
-    return s ? JSON.parse(s) : structuredClone(initial);
-  } catch(e) {
-    return structuredClone(initial);
-  }
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length === 4) {
+        return parsed;
+      }
+    }
+  } catch (e) {}
+
+  return cloneInitial();
 }
 
 function persist() {
   try {
-    localStorage.setItem(
-      'abstellkarte-demo',
-      JSON.stringify(tracks)
-    );
-  } catch(e) {}
-}
-
-function esc(s='') {
-  return String(s).replace(
-    /[&<>"']/g,
-    c => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[c])
-  );
-}
-
-function render() {
-  const all = tracks
-    .flatMap(t=>t.slots)
-    .filter(s=>!s.fixed);
-
-  const occ = all.filter(
-    s=>s.status==='occupied'
-  ).length;
-
-  const free = all.filter(
-    s=>s.status==='free'
-  ).length;
-
-  const other = all.length-occ-free;
-
-  document.getElementById('total').textContent = all.length;
-
-  document.getElementById('occupied').textContent = occ;
-
-  document.getElementById('occupiedFoot').textContent =
-    (all.length ? Math.round(occ/all.length*100) : 0) +
-    ' % Auslastung';
-
-  document.getElementById('free').textContent = free;
-  document.getElementById('other').textContent = other;
-
-  const special =
-    JSON.parse(
-      localStorage.getItem('abstellkarte-other-storage') || '[]'
-    );
-
-  const regular = (s,ti,si) => `
-    <button
-      class="slot ${s.status}${s.fixed?' fixed-slot':''}"
-      ${s.fixed?'disabled':''}
-      data-track="${ti}"
-      data-slot="${si}"
-      aria-label="${esc(s.id)}${s.fixed?' dauerhaft belegt':' bearbeiten'}">
-
-      <div class="slot-top">
-        <strong>${esc(s.id)}</strong>
-        <span>${s.fixed?'●':'↗'}</span>
-      </div>
-
-      <div class="slot-status">
-        ${labels[s.status]}
-      </div>
-
-      <div class="loco">
-        ${
-          s.status==='occupied'
-            ? esc(s.loco||'TFZ fehlt')
-            : s.status==='free'
-              ? '—'
-              : s.status==='reserved'
-                ? 'Reserviert'
-                : 'Gesperrt'
-        }
-      </div>
-
-      ${
-        s.note
-          ? `<div class="slot-note">${esc(s.note)}</div>`
-          : ''
-      }
-
-      ${
-        s.fixed
-          ? '<div class="slot-action">Festes Element</div>'
-          : '<div class="slot-action">Klicken zum Bearbeiten</div>'
-      }
-    </button>
-  `;
-
-  const diagram = (t,ti) => {
-    let cells = '';
-
-    if(
-      t.name==='Gleis 39W' ||
-      t.name==='Gleis 40W'
-    ) {
-      cells =
-        regular(t.slots[0],ti,0) +
-        t.slots
-          .slice(1)
-          .map((s,i)=>regular(s,ti,i+1))
-          .join('') +
-        '<div class="infra stage">SCHIEBEBÜHNE</div>';
-
-    } else if(t.name==='Gleis 41W') {
-
-      cells =
-        '<div class="infra tank">TANKSTELLE</div>' +
-        '<div class="infra switch">WEICHE</div>' +
-        regular(t.slots[2],ti,2) +
-        regular(t.slots[1],ti,1) +
-        '<div class="infra stage">SCHIEBEBÜHNE</div>' +
-        regular(t.slots[0],ti,0);
-
-    } else {
-
-      cells =
-        '<div class="buffer-stop">' +
-          '<span class="buffer-symbol" aria-hidden="true"></span>' +
-          '<span>PRELLBOCK</span>' +
-        '</div>' +
-        regular(t.slots[4],ti,4) +
-        regular(t.slots[3],ti,3) +
-        regular(t.slots[2],ti,2) +
-        '<div class="infra switch">WEICHE</div>' +
-        regular(t.slots[1],ti,1) +
-        '<div class="hilfszug">HILFSZUG</div>';
-    }
-
-    return `
-      <section class="track">
-
-        <div class="track-head">
-
-          <div class="track-name">
-            <span class="track-icon">≋</span>
-
-            <span>
-              ${esc(t.name)}
-              <span class="track-meta">
-                · ${esc(t.description)}
-              </span>
-            </span>
-          </div>
-
-          <div class="track-meta">
-            ${
-              t.slots.filter(
-                s=>s.status==='occupied'
-              ).length
-            }
-            /
-            ${t.slots.length}
-            Plätze belegt
-          </div>
-
-        </div>
-
-        <div
-          class="slots"
-          style="overflow-x:auto">
-
-          <div class="track-diagram">
-            ${cells}
-          </div>
-
-          ${
-            t.name==='Gleis 42W'
-              ? `
-                <div class="special-row">
-
-                  <div class="special-title">
-                    Sonderabstellungen
-                  </div>
-
-                  ${
-                    special.length
-                      ? special.map((x,i)=>`
-                        <div class="special-item">
-
-                          <div>
-                            <strong>${esc(x.track)}</strong>
-
-                            <div class="muted">
-                              ${esc(x.loco)}
-                            </div>
-
-                            ${
-                              x.note
-                                ? `<div class="slot-note">${esc(x.note)}</div>`
-                                : ''
-                            }
-                          </div>
-
-                          <button
-                            class="danger"
-                            data-special-clear="${i}">
-                            Löschen
-                          </button>
-
-                        </div>
-                      `).join('')
-                      : `
-                        <div class="muted">
-                          Noch keine Sonderabstellungen erfasst.
-                        </div>
-                      `
-                  }
-
-                </div>
-              `
-              : ''
-          }
-
-        </div>
-
-      </section>
-    `;
-  };
-
-  document.getElementById('tracks').innerHTML =
-    tracks.map(diagram).join('');
-
-  document
-    .querySelectorAll('.slot:not(.fixed-slot)')
-    .forEach(
-      b => b.addEventListener(
-        'click',
-        () => openEditor(
-          +b.dataset.track,
-          +b.dataset.slot
-        )
-      )
-    );
-
-  document
-    .querySelectorAll('[data-special-clear]')
-    .forEach(
-      b => b.onclick = () => {
-
-        const a =
-          JSON.parse(
-            localStorage.getItem(
-              'abstellkarte-other-storage'
-            ) || '[]'
-          );
-
-        a.splice(
-          +b.dataset.specialClear,
-          1
-        );
-
-        localStorage.setItem(
-          'abstellkarte-other-storage',
-          JSON.stringify(a)
-        );
-
-        render();
-      }
-    );
-}
-
-function openEditor(ti,si) {
-  selected = {ti,si};
-
-  const s = tracks[ti].slots[si];
-
-  document.getElementById('modalTitle').textContent =
-    'Abstellplatz bearbeiten';
-
-  document.getElementById('modalSub').textContent =
-    tracks[ti].name + ' · ' + s.id;
-
-  document.getElementById('placementField').style.display =
-    'none';
-
-  document.getElementById('slotChoiceField').style.display =
-    'none';
-
-  document.getElementById('specialTrackField').style.display =
-    'none';
-
-  document.getElementById('status').value =
-    s.status;
-
-  document.getElementById('locoInput').value =
-    s.loco || '';
-
-  document.getElementById('noteInput').value =
-    s.note || '';
-
-  syncLoco();
-
-  document.getElementById('clearBtn').style.display =
-    'block';
-
-  document.getElementById('backdrop')
-    .classList.add('open');
-
-  if(s.status==='occupied') {
-    document.getElementById('locoInput').focus();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks));
+  } catch (e) {
+    toast("Speichern im Browser nicht möglich.");
   }
 }
 
-function syncLoco() {
-  document.getElementById('locoField').style.display =
-    document.getElementById('status').value==='occupied'
-      ? 'grid'
-      : 'none';
+function getOtherStorage() {
+  try {
+    const value = JSON.parse(localStorage.getItem(OTHER_KEY) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch (e) {
+    return [];
+  }
 }
 
-function formatLoco() {
-  const input =
-    document.getElementById('locoInput');
-
-  const digits =
-    input.value
-      .replace(/\D/g,'')
-      .slice(0,6);
-
-  input.value =
-    digits.length>3
-      ? digits.slice(0,3) + ' ' + digits.slice(3)
-      : digits;
+function esc(value) {
+  return String(value == null ? "" : value).replace(
+    /[&<>"']/g,
+    function(char) {
+      return {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char];
+    }
+  );
 }
 
-function openAdd() {
-  const choice =
-    document.getElementById('slotChoice');
+function formatLocoValue(value) {
+  const digits = String(value || "").replace(/\D/g, "").slice(0, 6);
+  return digits.length > 3
+    ? digits.slice(0, 3) + " " + digits.slice(3)
+    : digits;
+}
 
-  const free = [];
+function getRegularSlots() {
+  const result = [];
 
-  tracks.forEach((t,ti)=>{
-    t.slots.forEach((s,si)=>{
-      if(
-        !s.fixed &&
-        s.status==='free'
-      ) {
-        free.push({
-          ti,
-          si,
-          label:t.name+' · '+s.id
+  tracks.forEach(function(track, trackIndex) {
+    track.slots.forEach(function(slot, slotIndex) {
+      if (!slot.fixed && slot.status === "free") {
+        result.push({
+          trackIndex: trackIndex,
+          slotIndex: slotIndex,
+          label: track.name + " · " + slot.id
         });
       }
     });
   });
 
-  choice.innerHTML =
-    free
-      .map(
-        (x,i)=>
-          `<option value="${i}">
-            ${esc(x.label)}
-          </option>`
-      )
-      .join('');
-
-  window.addChoices = free;
-
-  document.getElementById('modalTitle').textContent =
-    'Lok abstellen';
-
-  document.getElementById('modalSub').textContent =
-    'Stellplatz auswählen';
-
-  document.getElementById('placementField').style.display =
-    'grid';
-
-  document.getElementById('slotChoiceField').style.display =
-    'grid';
-
-  document.getElementById('specialTrackField').style.display =
-    'none';
-
-  document.getElementById('placement').value =
-    'regular';
-
-  document.getElementById('status').value =
-    'occupied';
-
-  document.getElementById('locoInput').value =
-    '';
-
-  document.getElementById('noteInput').value =
-    '';
-
-  document.getElementById('clearBtn').style.display =
-    'none';
-
-  syncLoco();
-
-  document.getElementById('backdrop')
-    .classList.add('open');
-
-  document.getElementById('locoInput').focus();
+  return result;
 }
 
-function close() {
-  document.getElementById('backdrop')
-    .classList.remove('open');
+function renderSlot(slot, trackIndex, slotIndex) {
+  const fixed = !!slot.fixed;
 
+  return `
+    <button
+      class="slot ${esc(slot.status)}${fixed ? " fixed-slot" : ""}"
+      ${fixed ? "disabled" : ""}
+      data-track="${trackIndex}"
+      data-slot="${slotIndex}"
+      aria-label="${esc(slot.id)}"
+    >
+      <div class="slot-top">
+        <strong>${esc(slot.id)}</strong>
+        <span>${fixed ? "●" : "↗"}</span>
+      </div>
+
+      <div class="slot-status">${esc(labels[slot.status] || slot.status)}</div>
+
+      <div class="loco">
+        ${
+          slot.status === "occupied"
+            ? esc(slot.loco || "TFZ fehlt")
+            : slot.status === "free"
+              ? "—"
+              : esc(labels[slot.status] || "")
+        }
+      </div>
+
+      ${
+        slot.note
+          ? `<div class="slot-note">${esc(slot.note)}</div>`
+          : ""
+      }
+
+      <div class="slot-action">
+        ${fixed ? "Festes Element" : "Klicken zum Bearbeiten"}
+      </div>
+    </button>
+  `;
+}
+
+function render() {
+  const regularSlots = tracks
+    .flatMap(function(track) {
+      return track.slots;
+    })
+    .filter(function(slot) {
+      return !slot.fixed;
+    });
+
+  const occupied = regularSlots.filter(function(slot) {
+    return slot.status === "occupied";
+  }).length;
+
+  const free = regularSlots.filter(function(slot) {
+    return slot.status === "free";
+  }).length;
+
+  const other = regularSlots.length - occupied - free;
+
+  document.getElementById("total").textContent = regularSlots.length;
+  document.getElementById("occupied").textContent = occupied;
+  document.getElementById("free").textContent = free;
+  document.getElementById("other").textContent = other;
+
+  document.getElementById("occupiedFoot").textContent =
+    (regularSlots.length
+      ? Math.round(occupied / regularSlots.length * 100)
+      : 0) + " % Auslastung";
+
+  let html = "";
+
+  tracks.forEach(function(track, trackIndex) {
+    let cells = "";
+
+    if (track.name === "Gleis 39W" || track.name === "Gleis 40W") {
+      cells =
+        track.slots.map(function(slot, slotIndex) {
+          return renderSlot(slot, trackIndex, slotIndex);
+        }).join("") +
+        `<div class="infra stage">SCHIEBEBÜHNE</div>`;
+    }
+
+    if (track.name === "Gleis 41W") {
+      cells =
+        `<div class="infra tank">TANKSTELLE</div>` +
+        `<div class="infra switch">WEICHE</div>` +
+        renderSlot(track.slots[2], trackIndex, 2) +
+        renderSlot(track.slots[1], trackIndex, 1) +
+        `<div class="infra stage">SCHIEBEBÜHNE</div>` +
+        renderSlot(track.slots[0], trackIndex, 0);
+    }
+
+    if (track.name === "Gleis 42W") {
+      cells =
+        `<div class="buffer-stop">
+          <span class="buffer-symbol"></span>
+          <span>PRELLBOCK</span>
+        </div>` +
+        renderSlot(track.slots[4], trackIndex, 4) +
+        renderSlot(track.slots[3], trackIndex, 3) +
+        renderSlot(track.slots[2], trackIndex, 2) +
+        `<div class="infra switch">WEICHE</div>` +
+        renderSlot(track.slots[1], trackIndex, 1) +
+        `<div class="hilfszug">HILFSZUG</div>`;
+    }
+
+    html += `
+      <section class="track">
+        <div class="track-head">
+          <div class="track-name">
+            <span class="track-icon">≋</span>
+            <span>
+              ${esc(track.name)}
+              <span class="track-meta">· ${esc(track.description)}</span>
+            </span>
+          </div>
+
+          <div class="track-meta">
+            ${track.slots.filter(function(s){return s.status === "occupied";}).length}
+            /
+            ${track.slots.length}
+            Plätze belegt
+          </div>
+        </div>
+
+        <div class="slots">
+          <div class="track-diagram">${cells}</div>
+        </div>
+      </section>
+    `;
+  });
+
+  document.getElementById("tracks").innerHTML = html;
+
+  document.querySelectorAll(".slot:not(.fixed-slot)").forEach(function(button) {
+    button.addEventListener("click", function() {
+      openEditor(
+        Number(button.dataset.track),
+        Number(button.dataset.slot)
+      );
+    });
+  });
+
+  renderOtherStorage();
+}
+
+function openEditor(trackIndex, slotIndex) {
+  selected = {
+    trackIndex: trackIndex,
+    slotIndex: slotIndex
+  };
+
+  const slot = tracks[trackIndex].slots[slotIndex];
+
+  document.getElementById("modalTitle").textContent =
+    "Abstellplatz bearbeiten";
+
+  document.getElementById("modalSub").textContent =
+    tracks[trackIndex].name + " · " + slot.id;
+
+  document.getElementById("placementField").style.display = "none";
+  document.getElementById("slotChoiceField").style.display = "none";
+  document.getElementById("specialTrackField").style.display = "none";
+
+  document.getElementById("status").value = slot.status;
+  document.getElementById("locoInput").value =
+    formatLocoValue(slot.loco || "");
+  document.getElementById("noteInput").value =
+    slot.note || "";
+
+  document.getElementById("clearBtn").style.display = "block";
+
+  syncLoco();
+  openModal();
+
+  if (slot.status === "occupied") {
+    document.getElementById("locoInput").focus();
+  }
+}
+
+function openAdd() {
+  selected = null;
+  addChoices = getRegularSlots();
+
+  const choice = document.getElementById("slotChoice");
+
+  choice.innerHTML = addChoices.length
+    ? addChoices.map(function(item, index) {
+        return `<option value="${index}">${esc(item.label)}</option>`;
+      }).join("")
+    : `<option value="">Keine freien Stellplätze</option>`;
+
+  document.getElementById("modalTitle").textContent =
+    "Lok abstellen";
+
+  document.getElementById("modalSub").textContent =
+    "Stellplatz auswählen";
+
+  document.getElementById("placementField").style.display = "grid";
+  document.getElementById("slotChoiceField").style.display = "grid";
+  document.getElementById("specialTrackField").style.display = "none";
+
+  document.getElementById("placement").value = "regular";
+  document.getElementById("status").value = "occupied";
+  document.getElementById("locoInput").value = "";
+  document.getElementById("noteInput").value = "";
+  document.getElementById("specialTrackInput").value = "";
+
+  document.getElementById("clearBtn").style.display = "none";
+
+  syncLoco();
+  openModal();
+
+  document.getElementById("locoInput").focus();
+}
+
+function openModal() {
+  document.getElementById("backdrop").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("backdrop").classList.remove("open");
   selected = null;
 }
 
-function toast(msg) {
-  const el =
-    document.getElementById('toast');
-
-  el.textContent = msg;
-
-  el.classList.add('show');
-
-  setTimeout(
-    ()=>el.classList.remove('show'),
-    2400
-  );
+function syncLoco() {
+  document.getElementById("locoField").style.display =
+    document.getElementById("status").value === "occupied"
+      ? "grid"
+      : "none";
 }
 
-document
-  .getElementById('status')
-  .addEventListener(
-    'change',
-    syncLoco
-  );
+function toast(message) {
+  const element = document.getElementById("toast");
+  element.textContent = message;
+  element.classList.add("show");
 
-document
-  .getElementById('locoInput')
-  .addEventListener(
-    'input',
-    formatLoco
-  );
+  clearTimeout(window.__toastTimer);
 
-document
-  .getElementById('placement')
-  .addEventListener(
-    'change',
-    ()=>{
-      const special =
-        document.getElementById('placement').value==='special';
+  window.__toastTimer = setTimeout(function() {
+    element.classList.remove("show");
+  }, 2400);
+}
 
-      document.getElementById('slotChoiceField').style.display =
-        special ? 'none' : 'grid';
+function saveCurrent() {
+  const status = document.getElementById("status").value;
+  const loco = document
+    .getElementById("locoInput")
+    .value
+    .replace(/\s/g, "");
 
-      document.getElementById('specialTrackField').style.display =
-        special ? 'grid' : 'none';
-    }
-  );
-
-document
-  .getElementById('closeBtn')
-  .onclick = close;
-
-document
-  .getElementById('cancelBtn')
-  .onclick = close;
-
-document
-  .getElementById('backdrop')
-  .addEventListener(
-    'click',
-    e=>{
-      if(e.target.id==='backdrop') {
-        close();
-      }
-    }
-  );
-
-document.addEventListener(
-  'keydown',
-  e=>{
-    if(e.key==='Escape') {
-      close();
-    }
+  if (status === "occupied" && !/^\d{6}$/.test(loco)) {
+    toast("TFZ-Nummer muss exakt 6-stellig sein.");
+    document.getElementById("locoInput").focus();
+    return;
   }
-);
 
-document
-  .getElementById('saveBtn')
-  .onclick = () => {
+  const note = document
+    .getElementById("noteInput")
+    .value
+    .trim();
 
-    const status =
-      document.getElementById('status').value;
+  const placement = document.getElementById("placement").value;
 
-    const loco =
-      document
-        .getElementById('locoInput')
-        .value
-        .replace(/\s/g,'');
+  if (selected) {
+    const slot =
+      tracks[selected.trackIndex].slots[selected.slotIndex];
 
-    if(
-      status==='occupied' &&
-      !/^\d{6}$/.test(loco)
-    ) {
-      document
-        .getElementById('locoInput')
-        .focus();
-
-      toast(
-        'TFZ-Nummer muss exakt 6-stellig sein.'
-      );
-
-      return;
-    }
-
-    const note =
-      document
-        .getElementById('noteInput')
-        .value
-        .trim();
-
-    if(
-      !document.getElementById('placementField').style.display ||
-      document.getElementById('placementField').style.display==='none'
-    ) {
-
-      if(!selected) {
-        return;
-      }
-
-      const s =
-        tracks[selected.ti].slots[selected.si];
-
-      s.status = status;
-
-      s.loco =
-        status==='occupied'
-          ? document.getElementById('locoInput').value
-          : '';
-
-      s.note = note;
-
-      persist();
-      render();
-      close();
-
-      toast(
-        'Abstellplatz aktualisiert.'
-      );
-
-      return;
-    }
-
-    if(
-      document.getElementById('placement').value==='special'
-    ) {
-
-      const track =
-        document
-          .getElementById('specialTrackInput')
-          .value
-          .trim();
-
-      if(!track) {
-        toast(
-          'Bitte Gleis oder Abstellort eintragen.'
-        );
-
-        return;
-      }
-
-      const items =
-        JSON.parse(
-          localStorage.getItem(
-            'abstellkarte-other-storage'
-          ) || '[]'
-        );
-
-      items.push({
-        loco:document.getElementById('locoInput').value,
-        track,
-        note,
-        time:new Date().toISOString()
-      });
-
-      localStorage.setItem(
-        'abstellkarte-other-storage',
-        JSON.stringify(items)
-      );
-
-      render();
-      renderOtherStorage();
-      close();
-
-      toast(
-        'Sonderabstellung gespeichert.'
-      );
-
-      return;
-    }
-
-    if(!window.addChoices?.length) {
-      toast(
-        'Kein freier Stellplatz vorhanden.'
-      );
-
-      return;
-    }
-
-    const pick =
-      window.addChoices[
-        +document.getElementById('slotChoice').value
-      ];
-
-    const s =
-      tracks[pick.ti].slots[pick.si];
-
-    s.status = 'occupied';
-    s.loco =
-      document.getElementById('locoInput').value;
-    s.note = note;
+    slot.status = status;
+    slot.loco = status === "occupied"
+      ? formatLocoValue(loco)
+      : "";
+    slot.note = note;
 
     persist();
     render();
-    close();
+    closeModal();
 
-    toast(
-      'Lok wurde abgestellt.'
-    );
-  };
+    toast("Abstellplatz gespeichert.");
+    return;
+  }
 
-document
-  .getElementById('clearBtn')
-  .onclick = () => {
+  if (placement === "special") {
+    const track = document
+      .getElementById("specialTrackInput")
+      .value
+      .trim();
 
-    if(!selected) {
+    if (!track) {
+      toast("Bitte Gleis oder Abstellort eintragen.");
       return;
     }
 
-    const s =
-      tracks[selected.ti].slots[selected.si];
-
-    s.status = 'free';
-    s.loco = '';
-    s.note = '';
-
-    persist();
-    render();
-    close();
-
-    toast(
-      'Platz wurde freigegeben.'
-    );
-  };
-
-document
-  .getElementById('addBtn')
-  .onclick = openAdd;
-
-document
-  .getElementById('resetBtn')
-  .onclick = () => {
-
-    if(
-      confirm(
-        'Demo-Belegung wirklich zurücksetzen?'
-      )
-    ) {
-      tracks =
-        structuredClone(initial);
-
-      persist();
-      render();
-
-      toast(
-        'Demo zurückgesetzt.'
-      );
-    }
-  };
-
-document
-  .getElementById('exportBtn')
-  .onclick = () => {
-
-    const rows = [
-      [
-        'Gleis',
-        'Platz',
-        'Status',
-        'TFZ-Nummer',
-        'Bemerkung'
-      ],
-
-      ...tracks.flatMap(
-        t =>
-          t.slots.map(
-            s => [
-              t.name,
-              s.id,
-              labels[s.status],
-              s.loco || '',
-              s.note || ''
-            ]
-          )
-      ),
-
-      ...JSON.parse(
-        localStorage.getItem(
-          'abstellkarte-other-storage'
-        ) || '[]'
-      ).map(
-        x => [
-          'Sondergleis',
-          x.track,
-          'Belegt',
-          x.loco || '',
-          x.note || ''
-        ]
-      )
-    ];
-
-    const csv =
-      '\ufeff' +
-      rows
-        .map(
-          r =>
-            r
-              .map(
-                v =>
-                  '"' +
-                  String(v)
-                    .replace(/"/g,'""') +
-                  '"'
-              )
-              .join(';')
-        )
-        .join('\r\n');
-
-    const a =
-      document.createElement('a');
-
-    a.href =
-      URL.createObjectURL(
-        new Blob(
-          [csv],
-          {
-            type:'text/csv;charset=utf-8;'
-          }
-        )
-      );
-
-    a.download =
-      'abstellkarte.csv';
-
-    a.click();
-
-    URL.revokeObjectURL(a.href);
-
-    setTimeout(
-      ()=>window.print(),
-      150
-    );
-
-    toast(
-      'CSV erstellt – Druckdialog für PDF geöffnet.'
-    );
-  };
-
-const otherStorageKey =
-  'abstellkarte-other-storage';
-
-function renderOtherStorage() {
-
-  const items =
-    JSON.parse(
-      localStorage.getItem(
-        otherStorageKey
-      ) || '[]'
-    );
-
-  const list =
-    document.getElementById(
-      'otherStorageList'
-    );
-
-  document.getElementById(
-    'otherStorageMeta'
-  ).textContent =
-    items.length + ' Abstellungen';
-
-  list.innerHTML =
-    items.length
-      ? items.map(
-          (x,i)=>`
-            <div
-              style="
-                border:1px solid var(--border);
-                border-radius:10px;
-                padding:12px 14px;
-                background:var(--surface2);
-                display:flex;
-                justify-content:space-between;
-                gap:12px;
-                align-items:flex-start;
-              ">
-
-              <div>
-                <div style="font-weight:800">
-                  ${esc(x.loco)}
-                </div>
-
-                <div class="muted">
-                  Gleis / Abstellort:
-                  ${esc(x.track)}
-                </div>
-
-                ${
-                  x.note
-                    ? `
-                      <div
-                        class="slot-note"
-                        style="margin-top:4px">
-                        ${esc(x.note)}
-                      </div>
-                    `
-                    : ''
-                }
-              </div>
-
-              <button
-                class="danger"
-                data-other-clear="${i}">
-                Löschen
-              </button>
-
-            </div>
-          `
-        ).join('')
-      : `
-        <div class="muted">
-          Noch keine Abstellungen außerhalb
-          des Betriebswerks erfasst.
-        </div>
-      `;
-
-  list
-    .querySelectorAll('[data-other-clear]')
-    .forEach(
-      b =>
-        b.onclick = () => {
-
-          const a =
-            JSON.parse(
-              localStorage.getItem(
-                otherStorageKey
-              ) || '[]'
-            );
-
-          a.splice(
-            +b.dataset.otherClear,
-            1
-          );
-
-          localStorage.setItem(
-            otherStorageKey,
-            JSON.stringify(a)
-          );
-
-          renderOtherStorage();
-        }
-    );
-}
-
-document
-  .getElementById('otherStorageBtn')
-  .onclick = () => {
-
-    const loco =
-      prompt(
-        'Loknummer / Fahrzeug-ID:'
-      );
-
-    if(!loco || !loco.trim()) {
-      return;
-    }
-
-    const track =
-      prompt(
-        'Gleis / Abstellort:'
-      );
-
-    if(!track || !track.trim()) {
-      return;
-    }
-
-    const note =
-      prompt(
-        'Bemerkung (optional):'
-      ) || '';
-
-    const items =
-      JSON.parse(
-        localStorage.getItem(
-          otherStorageKey
-        ) || '[]'
-      );
+    const items = getOtherStorage();
 
     items.push({
-      loco:loco.trim(),
-      track:track.trim(),
-      note:note.trim(),
-      time:new Date().toISOString()
+      loco: formatLocoValue(loco),
+      track: track,
+      note: note,
+      time: new Date().toISOString()
     });
 
-    localStorage.setItem(
-      otherStorageKey,
-      JSON.stringify(items)
-    );
+    localStorage.setItem(OTHER_KEY, JSON.stringify(items));
 
-    renderOtherStorage();
+    render();
+    closeModal();
 
-    toast(
-      'Abstellung außerhalb des Betriebswerks gespeichert.'
-    );
-  };
+    toast("Sonderabstellung gespeichert.");
+    return;
+  }
+
+  if (!addChoices.length) {
+    toast("Kein freier Stellplatz vorhanden.");
+    return;
+  }
+
+  const selectedChoice =
+    addChoices[Number(document.getElementById("slotChoice").value)];
+
+  if (!selectedChoice) {
+    toast("Bitte einen Stellplatz auswählen.");
+    return;
+  }
+
+  const slot =
+    tracks[selectedChoice.trackIndex]
+      .slots[selectedChoice.slotIndex];
+
+  slot.status = "occupied";
+  slot.loco = formatLocoValue(loco);
+  slot.note = note;
+
+  persist();
+  render();
+  closeModal();
+
+  toast("Lok wurde abgestellt.");
+}
+
+function clearCurrent() {
+  if (!selected) return;
+
+  const slot =
+    tracks[selected.trackIndex].slots[selected.slotIndex];
+
+  slot.status = "free";
+  slot.loco = "";
+  slot.note = "";
+
+  persist();
+  render();
+  closeModal();
+
+  toast("Platz wurde freigegeben.");
+}
+
+function renderOtherStorage() {
+  const items = getOtherStorage();
+  const list = document.getElementById("otherStorageList");
+
+  document.getElementById("otherStorageMeta").textContent =
+    items.length + " Abstellungen";
+
+  if (!items.length) {
+    list.innerHTML =
+      `<div class="muted">
+        Noch keine Abstellungen außerhalb des Betriebswerks erfasst.
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(function(item, index) {
+    return `
+      <div style="
+        border:1px solid var(--border);
+        border-radius:10px;
+        padding:12px 14px;
+        background:var(--surface2);
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        align-items:flex-start;
+      ">
+        <div>
+          <div style="font-weight:800">${esc(item.loco)}</div>
+          <div class="muted">
+            Gleis / Abstellort: ${esc(item.track)}
+          </div>
+          ${
+            item.note
+              ? `<div class="slot-note" style="margin-top:4px">
+                  ${esc(item.note)}
+                </div>`
+              : ""
+          }
+        </div>
+
+        <button class="danger" data-other-clear="${index}">
+          Löschen
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  list.querySelectorAll("[data-other-clear]").forEach(function(button) {
+    button.addEventListener("click", function() {
+      const current = getOtherStorage();
+
+      current.splice(
+        Number(button.dataset.otherClear),
+        1
+      );
+
+      localStorage.setItem(
+        OTHER_KEY,
+        JSON.stringify(current)
+      );
+
+      renderOtherStorage();
+    });
+  });
+}
+
+function addOtherStorage() {
+  const loco = prompt("Loknummer / Fahrzeug-ID:");
+
+  if (!loco || !loco.trim()) return;
+
+  const track = prompt("Gleis / Abstellort:");
+
+  if (!track || !track.trim()) return;
+
+  const note = prompt("Bemerkung (optional):") || "";
+
+  const items = getOtherStorage();
+
+  items.push({
+    loco: loco.trim(),
+    track: track.trim(),
+    note: note.trim(),
+    time: new Date().toISOString()
+  });
+
+  localStorage.setItem(
+    OTHER_KEY,
+    JSON.stringify(items)
+  );
+
+  renderOtherStorage();
+  toast("Abstellung gespeichert.");
+}
+
+function exportCsv() {
+  const rows = [
+    ["Gleis", "Platz", "Status", "TFZ-Nummer", "Bemerkung"]
+  ];
+
+  tracks.forEach(function(track) {
+    track.slots.forEach(function(slot) {
+      rows.push([
+        track.name,
+        slot.id,
+        labels[slot.status] || slot.status,
+        slot.loco || "",
+        slot.note || ""
+      ]);
+    });
+  });
+
+  getOtherStorage().forEach(function(item) {
+    rows.push([
+      "Sondergleis",
+      item.track,
+      "Belegt",
+      item.loco || "",
+      item.note || ""
+    ]);
+  });
+
+  const csv =
+    "\ufeff" +
+    rows.map(function(row) {
+      return row.map(function(value) {
+        return '"' +
+          String(value).replace(/"/g, '""') +
+          '"';
+      }).join(";");
+    }).join("\r\n");
+
+  const blob = new Blob(
+    [csv],
+    {type:"text/csv;charset=utf-8;"}
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "abstellkarte.csv";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(function() {
+    URL.revokeObjectURL(url);
+  }, 1000);
+
+  toast("CSV wurde exportiert.");
+}
+
+document.getElementById("addBtn")
+  .addEventListener("click", openAdd);
+
+document.getElementById("saveBtn")
+  .addEventListener("click", saveCurrent);
+
+document.getElementById("clearBtn")
+  .addEventListener("click", clearCurrent);
+
+document.getElementById("closeBtn")
+  .addEventListener("click", closeModal);
+
+document.getElementById("cancelBtn")
+  .addEventListener("click", closeModal);
+
+document.getElementById("status")
+  .addEventListener("change", syncLoco);
+
+document.getElementById("locoInput")
+  .addEventListener("input", function() {
+    this.value = formatLocoValue(this.value);
+  });
+
+document.getElementById("placement")
+  .addEventListener("change", function() {
+    const special = this.value === "special";
+
+    document.getElementById("slotChoiceField").style.display =
+      special ? "none" : "grid";
+
+    document.getElementById("specialTrackField").style.display =
+      special ? "grid" : "none";
+
+    if (special) {
+      document.getElementById("status").value = "occupied";
+      syncLoco();
+    }
+  });
+
+document.getElementById("backdrop")
+  .addEventListener("click", function(event) {
+    if (event.target.id === "backdrop") {
+      closeModal();
+    }
+  });
+
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+    closeModal();
+  }
+});
+
+document.getElementById("resetBtn")
+  .addEventListener("click", function() {
+    if (!confirm("Demo-Belegung wirklich zurücksetzen?")) {
+      return;
+    }
+
+    tracks = cloneInitial();
+    persist();
+
+    localStorage.removeItem(OTHER_KEY);
+
+    render();
+    toast("Demo zurückgesetzt.");
+  });
+
+document.getElementById("exportBtn")
+  .addEventListener("click", exportCsv);
+
+document.getElementById("otherStorageBtn")
+  .addEventListener("click", addOtherStorage);
 
 render();
-renderOtherStorage();
 </script>
 
 </body>
