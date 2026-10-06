@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abstellkarte · Betriebswerk</title>
-
 <style>
 :root {
   color-scheme: light dark;
@@ -25,12 +24,9 @@
   --redText: light-dark(#a52d2a,#ffaaa6);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing:border-box; }
 
-html,
-body {
+html,body {
   width:100%;
   max-width:100%;
   overflow-x:hidden;
@@ -150,10 +146,7 @@ h2 {
   flex-wrap:wrap;
 }
 
-button,
-input,
-select,
-textarea {
+button,input,select,textarea {
   font:inherit;
 }
 
@@ -290,6 +283,7 @@ button.danger {
 
 .slot {
   min-height:112px;
+  min-width:150px;
   text-align:left;
   padding:11px;
   border-radius:10px;
@@ -343,8 +337,6 @@ button.danger {
   letter-spacing:.5px;
   font-weight:750;
   white-space:nowrap;
-  display:block;
-  min-width:max-content;
 }
 
 .loco {
@@ -366,108 +358,6 @@ button.danger {
   opacity:.8;
 }
 
-.fixed-slot {
-  cursor:default!important;
-  transform:none!important;
-}
-
-.fixed-slot:hover {
-  border-color:var(--border)!important;
-}
-
-.track-diagram {
-  display:grid;
-  grid-template-columns:repeat(12,minmax(76px,1fr));
-  gap:10px;
-  align-items:stretch;
-  min-width:980px;
-}
-
-.track-diagram .slot,
-.track-diagram .infra {
-  min-width:0;
-}
-
-/* Wichtig: Status-Kacheln bleiben innerhalb des Diagramms breit genug */
-.track-diagram .slot.reserved,
-.track-diagram .slot.blocked {
-  min-width:150px;
-}
-
-.infra {
-  min-height:112px;
-  border:1px dashed var(--border);
-  border-radius:10px;
-  background:var(--surface2);
-  color:var(--muted);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-size:11px;
-  font-weight:750;
-  padding:8px;
-}
-
-/* Schiebebühne */
-.stage {
-  border:2px solid var(--border);
-  background:var(--surface2);
-  position:relative;
-  overflow:hidden;
-}
-
-.stage:before,
-.stage:after {
-  content:"";
-  position:absolute;
-  left:10px;
-  right:10px;
-  height:5px;
-  background:var(--border);
-  top:35px;
-  box-shadow:0 35px 0 var(--border);
-}
-
-/* Weiche = ausschließlich Text, kein Symbol */
-.switch {
-  position:relative;
-  border:1px dashed var(--border);
-  background:var(--surface2);
-  box-shadow:none;
-  font-size:11px;
-  font-weight:750;
-  white-space:nowrap;
-}
-
-/* Alte Weichen-Grafik vollständig deaktiviert */
-.switch:before,
-.switch:after {
-  display:none;
-  content:none;
-}
-
-.tank {
-  background:var(--blue);
-  color:var(--blueText);
-}
-
-.hilfszug {
-  min-height:112px;
-  border:2px solid var(--border);
-  border-radius:10px;
-  background:var(--surface2);
-  color:var(--muted);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-size:11px;
-  font-weight:750;
-  writing-mode:horizontal-tb;
-  white-space:nowrap;
-}
-
 .buffer-stop {
   margin:0;
   display:flex;
@@ -482,7 +372,7 @@ button.danger {
   font-size:11px;
   font-weight:750;
   writing-mode:vertical-rl;
-  min-width:48px;
+  min-width:150px;
 }
 
 .buffer-symbol {
@@ -520,54 +410,12 @@ button.danger {
 }
 
 .slots.with-buffer .buffer-stop {
-  flex:0 0 48px;
+  flex:0 0 150px;
 }
 
 .slots.with-buffer .slot {
   flex:1 1 0;
-  min-width:0;
-}
-
-.special-row {
-  margin-top:12px;
-  border-top:1px dashed var(--border);
-  padding-top:12px;
-}
-
-.special-title {
-  font-size:11px;
-  font-weight:750;
-  color:var(--muted);
-  margin-bottom:8px;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-}
-
-.special-item {
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px 12px;
-  background:var(--surface2);
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:center;
-}
-
-.special-item>div:first-child {
-  display:grid;
-  gap:2px;
-  font-size:13px;
-}
-
-.special-item>div:first-child strong,
-.special-item>div:first-child .muted,
-.special-item>div:first-child .slot-note {
-  font-size:13px;
-}
-
-.special-item button {
-  padding:6px 9px;
+  min-width:150px;
 }
 
 .footer-note {
@@ -633,9 +481,7 @@ label {
   color:var(--muted);
 }
 
-input,
-select,
-textarea {
+input,select,textarea {
   width:100%;
   border:1px solid var(--border);
   border-radius:9px;
@@ -684,16 +530,167 @@ textarea:focus {
   opacity:1;
 }
 
+.fixed-slot {
+  cursor:default!important;
+  transform:none!important;
+}
+
+.fixed-slot:hover {
+  border-color:var(--border)!important;
+}
+
+/* Gleisdiagramm */
+.track-diagram {
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:150px;
+  gap:10px;
+  align-items:stretch;
+  width:max-content;
+  min-width:100%;
+}
+
+.track-diagram .slot,
+.track-diagram .infra,
+.track-diagram .buffer-stop {
+  min-width:150px;
+}
+
+/* Infrastruktur */
+.infra {
+  min-height:112px;
+  border:1px dashed var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:750;
+  padding:8px;
+}
+
+/* Schiebebühne wie HILFSZUG – ohne Linien durch den Text */
+.stage {
+  min-height:112px;
+  border:2px solid var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--muted);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:750;
+  writing-mode:horizontal-tb;
+  white-space:nowrap;
+}
+
+.stage:before,
+.stage:after {
+  display:none;
+}
+
+/* Weiche als Text */
+.switch {
+  position:relative;
+  border:2px solid var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--muted);
+  box-shadow:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:750;
+  white-space:nowrap;
+}
+
+.switch:before,
+.switch:after {
+  display:none;
+}
+
+.tank {
+  background:var(--blue);
+  color:var(--blueText);
+}
+
+.hilfszug {
+  min-height:112px;
+  border:2px solid var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:750;
+  writing-mode:horizontal-tb;
+  white-space:nowrap;
+}
+
+.special-row {
+  margin-top:12px;
+  border-top:1px dashed var(--border);
+  padding-top:12px;
+}
+
+.special-title {
+  font-size:11px;
+  font-weight:750;
+  color:var(--muted);
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.special-item {
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  background:var(--surface2);
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+
+.special-item>div:first-child {
+  display:grid;
+  gap:2px;
+  font-size:13px;
+}
+
+.special-item>div:first-child strong,
+.special-item>div:first-child .muted,
+.special-item>div:first-child .slot-note {
+  font-size:13px;
+}
+
+.special-item button {
+  padding:6px 9px;
+}
+
+.modal-wide {
+  width:min(560px,100%);
+}
+
 .hint {
   font-size:11px;
   color:var(--muted);
 }
 
 @media(max-width:850px) {
-  .slots {
-    grid-template-columns:repeat(3,minmax(0,1fr));
-  }
-
   .stats {
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
@@ -702,10 +699,6 @@ textarea:focus {
 @media(max-width:480px) {
   header {
     align-items:flex-start;
-  }
-
-  .slots {
-    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 
   .stat {
@@ -722,390 +715,189 @@ textarea:focus {
   }
 }
 
-.modal-wide {
-  width:min(560px,100%);
-}
-</style>
-
-<style>
 .track-list .special-row {
   display:none;
 }
 </style>
-
 </head>
 
 <body>
-
 <div id="app">
 
 <header>
-
   <div class="brand">
-
     <div class="logo">↔</div>
-
     <div>
       <h1>Abstellkarte</h1>
-      <div class="subtitle">
-        Betriebswerk · Digitale Gleisbelegung
-      </div>
+      <div class="subtitle">Betriebswerk · Digitale Gleisbelegung</div>
     </div>
-
   </div>
 
   <div class="header-right">
-
     <div class="pill">
       <span class="dot"></span>
       <span>Lokale Demo · nicht synchronisiert</span>
     </div>
-
-    <button id="resetBtn">
-      Demo zurücksetzen
-    </button>
-
+    <button id="resetBtn">Demo zurücksetzen</button>
   </div>
-
 </header>
 
 <main>
 
 <div class="topline">
-
   <div>
     <h2>Gleisübersicht</h2>
-
     <div class="muted">
       Abstellplätze auswählen, Belegung bearbeiten und Status im Blick behalten.
     </div>
   </div>
 
   <div class="actions">
-
-    <button id="exportBtn">
-      ↓ Belegung exportieren
-    </button>
-
-    <button id="otherStorageBtn">
-      ▣ Abstellung in anderen Gleisen
-    </button>
-
-    <button class="primary" id="addBtn">
-      ＋ Lok abstellen
-    </button>
-
+    <button id="exportBtn">↓ Belegung exportieren</button>
+    <button id="otherStorageBtn">▣ Abstellung in anderen Gleisen</button>
+    <button class="primary" id="addBtn">＋ Lok abstellen</button>
   </div>
-
 </div>
 
 <section class="stats">
-
   <div class="stat">
-    <div class="stat-label">
-      Abstellplätze gesamt
-    </div>
-
-    <div class="stat-value" id="total">
-      23
-    </div>
-
-    <div class="stat-foot">
-      über alle Gleise
-    </div>
+    <div class="stat-label">Abstellplätze gesamt</div>
+    <div class="stat-value" id="total">23</div>
+    <div class="stat-foot">über alle Gleise</div>
   </div>
 
   <div class="stat">
-    <div class="stat-label">
-      Belegt
-    </div>
-
-    <div class="stat-value" id="occupied">
-      0
-    </div>
-
-    <div class="stat-foot" id="occupiedFoot">
-      0 % Auslastung
-    </div>
+    <div class="stat-label">Belegt</div>
+    <div class="stat-value" id="occupied">0</div>
+    <div class="stat-foot" id="occupiedFoot">0 % Auslastung</div>
   </div>
 
   <div class="stat">
-    <div class="stat-label">
-      Frei
-    </div>
-
-    <div class="stat-value" id="free">
-      0
-    </div>
-
-    <div class="stat-foot">
-      sofort verfügbar
-    </div>
+    <div class="stat-label">Frei</div>
+    <div class="stat-value" id="free">0</div>
+    <div class="stat-foot">sofort verfügbar</div>
   </div>
 
   <div class="stat">
-    <div class="stat-label">
-      Reserviert / gesperrt
-    </div>
-
-    <div class="stat-value" id="other">
-      0
-    </div>
-
-    <div class="stat-foot">
-      nicht regulär verfügbar
-    </div>
+    <div class="stat-label">Reserviert / gesperrt</div>
+    <div class="stat-value" id="other">0</div>
+    <div class="stat-foot">nicht regulär verfügbar</div>
   </div>
-
 </section>
 
 <div class="legend">
-
-  <span>
-    <i class="swatch" style="background:#35a66b"></i>
-    Frei
-  </span>
-
-  <span>
-    <i class="swatch" style="background:#368ed0"></i>
-    Belegt
-  </span>
-
-  <span>
-    <i class="swatch" style="background:#d8a22d"></i>
-    Reserviert
-  </span>
-
-  <span>
-    <i class="swatch" style="background:#d9534f"></i>
-    Gesperrt
-  </span>
-
+  <span><i class="swatch" style="background:#35a66b"></i> Frei</span>
+  <span><i class="swatch" style="background:#368ed0"></i> Belegt</span>
+  <span><i class="swatch" style="background:#d8a22d"></i> Reserviert</span>
+  <span><i class="swatch" style="background:#d9534f"></i> Gesperrt</span>
 </div>
 
 <div class="track-list" id="tracks"></div>
 
 <section class="track">
-
   <div class="track-head">
-
     <div class="track-name">
-
       <span class="track-icon">▣</span>
-
       <span>
         Abstellungen in anderen Gleisen
-        <span class="track-meta">
-          · außerhalb des Betriebswerks
-        </span>
+        <span class="track-meta">· außerhalb des Betriebswerks</span>
       </span>
-
     </div>
-
-    <div class="track-meta" id="otherStorageMeta">
-      0 Abstellungen
-    </div>
-
+    <div class="track-meta" id="otherStorageMeta">0 Abstellungen</div>
   </div>
 
-  <div
-    id="otherStorageList"
-    style="padding:16px;display:grid;gap:10px;"
-  ></div>
-
+  <div id="otherStorageList" style="padding:16px;display:grid;gap:10px;"></div>
 </section>
 
 <div class="footer-note">
-
   <strong>Hinweis zum Prototyp:</strong>
-
   Änderungen werden in diesem Browser gespeichert.
-
-  Für echten Echtzeitbetrieb mit mehreren Mitarbeitern und Geräten muss eine gemeinsame Datenbank mit Benutzerrechten und Live-Synchronisierung angebunden werden.
-
+  Für echten Echtzeitbetrieb mit mehreren Mitarbeitern und Geräten muss eine
+  gemeinsame Datenbank mit Benutzerrechten und Live-Synchronisierung angebunden werden.
   Die Gleise und Loknummern sind Beispieldaten.
-
 </div>
 
 </main>
-
 </div>
 
 <div class="modal-backdrop" id="backdrop">
-
-  <div
-    class="modal modal-wide"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="modalTitle"
-  >
+  <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 
     <div class="modal-head">
-
       <div>
-
-        <h3 id="modalTitle">
-          Lok abstellen
-        </h3>
-
-        <div class="muted" id="modalSub">
-          Stellplatz auswählen
-        </div>
-
+        <h3 id="modalTitle">Lok abstellen</h3>
+        <div class="muted" id="modalSub">Stellplatz auswählen</div>
       </div>
-
-      <button
-        class="close"
-        id="closeBtn"
-        aria-label="Schließen"
-      >
-        ×
-      </button>
-
+      <button class="close" id="closeBtn" aria-label="Schließen">×</button>
     </div>
 
     <div class="field" id="placementField">
-
-      <label for="placement">
-        ABSTELLART
-      </label>
-
+      <label for="placement">ABSTELLART</label>
       <select id="placement">
-
-        <option value="regular">
-          Regulärer Stellplatz
-        </option>
-
-        <option value="special">
-          Sondergleis / Sonderabstellplatz
-        </option>
-
+        <option value="regular">Regulärer Stellplatz</option>
+        <option value="special">Sondergleis / Sonderabstellplatz</option>
       </select>
-
     </div>
 
     <div class="field" id="slotChoiceField">
-
-      <label for="slotChoice">
-        STELLPLATZ
-      </label>
-
+      <label for="slotChoice">STELLPLATZ</label>
       <select id="slotChoice"></select>
-
       <div class="hint">
         Es werden nur freie reguläre Stellplätze angeboten.
       </div>
-
     </div>
 
-    <div
-      class="field"
-      id="specialTrackField"
-      style="display:none"
-    >
-
-      <label for="specialTrackInput">
-        GLEIS / ABSTELLORT
-      </label>
-
-      <input
-        id="specialTrackInput"
-        placeholder="z. B. 43W, Hofgleis, Werkstatt …"
-        autocomplete="off"
-      >
-
+    <div class="field" id="specialTrackField" style="display:none">
+      <label for="specialTrackInput">GLEIS / ABSTELLORT</label>
+      <input id="specialTrackInput"
+             placeholder="z. B. 43W, Hofgleis, Werkstatt …"
+             autocomplete="off">
     </div>
 
     <div class="field">
-
-      <label for="status">
-        STATUS
-      </label>
-
+      <label for="status">STATUS</label>
       <select id="status">
-
-        <option value="free">
-          Frei
-        </option>
-
-        <option value="occupied">
-          Belegt
-        </option>
-
-        <option value="reserved">
-          Reserviert
-        </option>
-
-        <option value="blocked">
-          Gesperrt
-        </option>
-
+        <option value="free">Frei</option>
+        <option value="occupied">Belegt</option>
+        <option value="reserved">Reserviert</option>
+        <option value="blocked">Gesperrt</option>
       </select>
-
     </div>
 
     <div class="field" id="locoField">
-
-      <label for="locoInput">
-        TFZ-NUMMER
-      </label>
-
-      <input
-        id="locoInput"
-        inputmode="numeric"
-        maxlength="7"
-        placeholder="123 456"
-        autocomplete="off"
-      >
-
+      <label for="locoInput">TFZ-NUMMER</label>
+      <input id="locoInput"
+             inputmode="numeric"
+             maxlength="7"
+             placeholder="123 456"
+             autocomplete="off">
       <div class="hint">
         Exakt 6 Ziffern, Anzeige im Format XXX XXX.
       </div>
-
     </div>
 
     <div class="field">
-
-      <label for="noteInput">
-        BEMERKUNG (OPTIONAL)
-      </label>
-
-      <textarea
-        id="noteInput"
-        rows="2"
-        placeholder="z. B. Richtung Ausfahrt, Besonderheiten …"
-      ></textarea>
-
+      <label for="noteInput">BEMERKUNG (OPTIONAL)</label>
+      <textarea id="noteInput"
+                rows="2"
+                placeholder="z. B. Richtung Ausfahrt, Besonderheiten …"></textarea>
     </div>
 
     <div class="modal-actions">
-
-      <button class="danger" id="clearBtn">
-        Platz freigeben
-      </button>
+      <button class="danger" id="clearBtn">Platz freigeben</button>
 
       <div class="right-actions">
-
-        <button id="cancelBtn">
-          Abbrechen
-        </button>
-
-        <button class="primary" id="saveBtn">
-          Speichern
-        </button>
-
+        <button id="cancelBtn">Abbrechen</button>
+        <button class="primary" id="saveBtn">Speichern</button>
       </div>
-
     </div>
 
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-
 const makeSlots = (prefix,count) =>
   Array.from(
     {length:count},
@@ -1118,44 +910,30 @@ const makeSlots = (prefix,count) =>
   );
 
 const initial = [
-
   {
     name:'Gleis 39W',
     description:'9 Abstellplätze · Schiebebühne rechts',
     slots:makeSlots('39W',9).reverse(),
     stage:true
   },
-
   {
     name:'Gleis 40W',
     description:'9 Abstellplätze · Schiebebühne rechts',
     slots:makeSlots('40W',9).reverse(),
     stage:true
   },
-
   {
     name:'Gleis 41W',
     description:'41Mitte · Schiebebühne · 41W1–41W2 · Weiche · Tankstelle',
-
     slots:[
-      {
-        id:'41Mitte',
-        status:'free',
-        loco:'',
-        note:'',
-        fixed:false
-      },
-
+      {id:'41Mitte',status:'free',loco:'',note:'',fixed:false},
       ...makeSlots('41W',2)
     ],
-
     stage:true
   },
-
   {
     name:'Gleis 42W',
     description:'Hilfszug · 42Mitte · Weiche · 42W1–42W3 · Prellbock',
-
     slots:[
       {
         id:'Hilfszug',
@@ -1164,7 +942,6 @@ const initial = [
         note:'Hilfszug · dauerhaft belegt',
         fixed:true
       },
-
       {
         id:'42Mitte',
         status:'free',
@@ -1172,13 +949,10 @@ const initial = [
         note:'',
         fixed:false
       },
-
       ...makeSlots('42W',3)
     ],
-
     bufferStop:true
   }
-
 ];
 
 const labels = {
@@ -1188,49 +962,31 @@ const labels = {
   blocked:'Gesperrt'
 };
 
-let tracks=load();
-let selected=null;
+let tracks = load();
+let selected = null;
 
-function load(){
-
-  try{
-
-    const s=
-      localStorage.getItem(
-        'abstellkarte-demo'
-      );
-
-    return s
-      ? JSON.parse(s)
-      : structuredClone(initial);
-
-  }catch(e){
-
+function load() {
+  try {
+    const s = localStorage.getItem('abstellkarte-demo');
+    return s ? JSON.parse(s) : structuredClone(initial);
+  } catch(e) {
     return structuredClone(initial);
-
   }
-
 }
 
-function persist(){
-
-  try{
-
+function persist() {
+  try {
     localStorage.setItem(
       'abstellkarte-demo',
       JSON.stringify(tracks)
     );
-
-  }catch(e){}
-
+  } catch(e) {}
 }
 
-function esc(s=''){
-
+function esc(s='') {
   return String(s).replace(
     /[&<>"']/g,
-
-    c=>({
+    c => ({
       '&':'&amp;',
       '<':'&lt;',
       '>':'&gt;',
@@ -1238,59 +994,40 @@ function esc(s=''){
       "'":'&#39;'
     }[c])
   );
-
 }
 
-function render(){
+function render() {
 
-  const all=
-    tracks
-      .flatMap(t=>t.slots)
-      .filter(s=>!s.fixed);
+  const all = tracks
+    .flatMap(t=>t.slots)
+    .filter(s=>!s.fixed);
 
-  const occ=
-    all.filter(
-      s=>s.status==='occupied'
-    ).length;
+  const occ = all.filter(
+    s=>s.status==='occupied'
+  ).length;
 
-  const free=
-    all.filter(
-      s=>s.status==='free'
-    ).length;
+  const free = all.filter(
+    s=>s.status==='free'
+  ).length;
 
-  const other=
-    all.length-occ-free;
+  const other = all.length-occ-free;
 
-  document.getElementById('total').textContent=
-    all.length;
+  document.getElementById('total').textContent = all.length;
+  document.getElementById('occupied').textContent = occ;
 
-  document.getElementById('occupied').textContent=
-    occ;
+  document.getElementById('occupiedFoot').textContent =
+    (all.length ? Math.round(occ/all.length*100) : 0) +
+    ' % Auslastung';
 
-  document.getElementById('occupiedFoot').textContent=
-    (
-      all.length
-        ? Math.round(
-            occ/all.length*100
-          )
-        : 0
-    )+' % Auslastung';
+  document.getElementById('free').textContent = free;
+  document.getElementById('other').textContent = other;
 
-  document.getElementById('free').textContent=
-    free;
-
-  document.getElementById('other').textContent=
-    other;
-
-  const special=
+  const special =
     JSON.parse(
-      localStorage.getItem(
-        'abstellkarte-other-storage'
-      )||'[]'
+      localStorage.getItem('abstellkarte-other-storage') || '[]'
     );
 
-  const regular=(s,ti,si)=>`
-
+  const regular = (s,ti,si) => `
     <button
       class="slot ${s.status}${s.fixed?' fixed-slot':''}"
       ${s.fixed?'disabled':''}
@@ -1298,17 +1035,9 @@ function render(){
       data-slot="${si}"
       aria-label="${esc(s.id)}${s.fixed?' dauerhaft belegt':' bearbeiten'}"
     >
-
       <div class="slot-top">
-
-        <strong>
-          ${esc(s.id)}
-        </strong>
-
-        <span>
-          ${s.fixed?'●':'↗'}
-        </span>
-
+        <strong>${esc(s.id)}</strong>
+        <span>${s.fixed?'●':'↗'}</span>
       </div>
 
       <div class="slot-status">
@@ -1316,7 +1045,6 @@ function render(){
       </div>
 
       <div class="loco">
-
         ${
           s.status==='occupied'
             ? esc(s.loco||'TFZ fehlt')
@@ -1326,7 +1054,6 @@ function render(){
                 ? 'Reserviert'
                 : 'Gesperrt'
         }
-
       </div>
 
       ${
@@ -1340,149 +1067,70 @@ function render(){
           ? '<div class="slot-action">Festes Element</div>'
           : '<div class="slot-action">Klicken zum Bearbeiten</div>'
       }
-
     </button>
-
   `;
 
-  const diagram=(t,ti)=>{
+  const diagram = (t,ti) => {
 
-    let cells='';
+    let cells = '';
 
-    if(
-      t.name==='Gleis 39W' ||
-      t.name==='Gleis 40W'
-    ){
+    if(t.name==='Gleis 39W'||t.name==='Gleis 40W') {
 
-      cells=
-        regular(
-          t.slots[0],
-          ti,
-          0
-        )+
-
+      cells =
+        regular(t.slots[0],ti,0) +
         t.slots
           .slice(1)
-          .map(
-            (s,i)=>
-              regular(
-                s,
-                ti,
-                i+1
-              )
-          )
-          .join('')+
-
+          .map((s,i)=>regular(s,ti,i+1))
+          .join('') +
         '<div class="infra stage">SCHIEBEBÜHNE</div>';
 
-    }
+    } else if(t.name==='Gleis 41W') {
 
-    else if(
-      t.name==='Gleis 41W'
-    ){
+      cells =
+        '<div class="infra tank">TANKSTELLE</div>' +
+        '<div class="infra switch">WEICHE</div>' +
+        regular(t.slots[2],ti,2) +
+        regular(t.slots[1],ti,1) +
+        '<div class="infra stage">SCHIEBEBÜHNE</div>' +
+        regular(t.slots[0],ti,0);
 
-      cells=
-        '<div class="infra tank">TANKSTELLE</div>'+
+    } else {
 
-        '<div class="infra switch">WEICHE</div>'+
-
-        regular(
-          t.slots[2],
-          ti,
-          2
-        )+
-
-        regular(
-          t.slots[1],
-          ti,
-          1
-        )+
-
-        '<div class="infra stage">SCHIEBEBÜHNE</div>'+
-
-        regular(
-          t.slots[0],
-          ti,
-          0
-        );
-
-    }
-
-    else{
-
-      cells=
-        '<div class="buffer-stop">'+
-
-          '<span class="buffer-symbol" aria-hidden="true"></span>'+
-
-          '<span>PRELLBOCK</span>'+
-
-        '</div>'+
-
-        regular(
-          t.slots[4],
-          ti,
-          4
-        )+
-
-        regular(
-          t.slots[3],
-          ti,
-          3
-        )+
-
-        regular(
-          t.slots[2],
-          ti,
-          2
-        )+
-
-        '<div class="infra switch">WEICHE</div>'+
-
-        regular(
-          t.slots[1],
-          ti,
-          1
-        )+
-
+      cells =
+        '<div class="buffer-stop">' +
+          '<span class="buffer-symbol" aria-hidden="true"></span>' +
+          '<span>PRELLBOCK</span>' +
+        '</div>' +
+        regular(t.slots[4],ti,4) +
+        regular(t.slots[3],ti,3) +
+        regular(t.slots[2],ti,2) +
+        '<div class="infra switch">WEICHE</div>' +
+        regular(t.slots[1],ti,1) +
         '<div class="hilfszug">HILFSZUG</div>';
-
     }
 
-    const occupiedCount=
+    const occupiedCount =
       t.slots.filter(
-        s=>
-          s.status==='occupied' &&
-          !s.fixed
+        s=>s.status==='occupied'&&!s.fixed
       ).length;
 
-    const countable=
-      t.slots.filter(
-        s=>!s.fixed
-      ).length;
+    const countable =
+      t.slots.filter(s=>!s.fixed).length;
 
     return `
-
       <section class="track">
 
         <div class="track-head">
 
           <div class="track-name">
-
-            <span class="track-icon">
-              ≋
-            </span>
+            <span class="track-icon">≋</span>
 
             <span>
-
               ${esc(t.name)}
-
               <span class="track-meta">
                 · ${esc(t.description)}
               </span>
-
             </span>
-
           </div>
 
           <div class="track-meta">
@@ -1491,10 +1139,7 @@ function render(){
 
         </div>
 
-        <div
-          class="slots"
-          style="overflow-x:auto"
-        >
+        <div class="slots" style="overflow-x:auto">
 
           <div class="track-diagram">
             ${cells}
@@ -1503,7 +1148,6 @@ function render(){
           ${
             t.name==='Gleis 42W'
               ? `
-
                 <div class="special-row">
 
                   <div class="special-title">
@@ -1512,51 +1156,37 @@ function render(){
 
                   ${
                     special.length
+                      ? special.map((x,i)=>`
+                        <div class="special-item">
 
-                      ? special.map(
-                          (x,i)=>`
+                          <div>
+                            <strong>${esc(x.track)}</strong>
+                            <div class="muted">${esc(x.loco)}</div>
 
-                            <div class="special-item">
-
-                              <div>
-
-                                <strong>
-                                  ${esc(x.track)}
-                                </strong>
-
-                                <div class="muted">
-                                  ${esc(x.loco)}
-                                </div>
-
-                                ${
-                                  x.note
-                                    ? `<div class="slot-note">${esc(x.note)}</div>`
-                                    : ''
-                                }
-
-                              </div>
-
-                              <button
-                                class="danger"
-                                data-special-clear="${i}"
-                              >
-                                Löschen
-                              </button>
-
-                            </div>
-
-                          `
-                        ).join('')
-
-                      : `
-                          <div class="muted">
-                            Noch keine Sonderabstellungen erfasst.
+                            ${
+                              x.note
+                                ? `<div class="slot-note">${esc(x.note)}</div>`
+                                : ''
+                            }
                           </div>
-                        `
+
+                          <button
+                            class="danger"
+                            data-special-clear="${i}"
+                          >
+                            Löschen
+                          </button>
+
+                        </div>
+                      `).join('')
+                      : `
+                        <div class="muted">
+                          Noch keine Sonderabstellungen erfasst.
+                        </div>
+                      `
                   }
 
                 </div>
-
               `
               : ''
           }
@@ -1564,186 +1194,122 @@ function render(){
         </div>
 
       </section>
-
     `;
   };
 
-  document.getElementById('tracks').innerHTML=
+  document.getElementById('tracks').innerHTML =
     tracks.map(diagram).join('');
 
   document
-    .querySelectorAll(
-      '.slot:not(.fixed-slot)'
-    )
-    .forEach(
-      b=>{
-        b.addEventListener(
-          'click',
-          ()=>openEditor(
+    .querySelectorAll('.slot:not(.fixed-slot)')
+    .forEach(b =>
+      b.addEventListener(
+        'click',
+        () =>
+          openEditor(
             +b.dataset.track,
             +b.dataset.slot
           )
-        );
-      }
+      )
     );
 
   document
-    .querySelectorAll(
-      '[data-special-clear]'
-    )
-    .forEach(
-      b=>{
-        b.onclick=()=>{
+    .querySelectorAll('[data-special-clear]')
+    .forEach(b =>
+      b.onclick = () => {
 
-          const a=
-            JSON.parse(
-              localStorage.getItem(
-                'abstellkarte-other-storage'
-              )||'[]'
-            );
-
-          a.splice(
-            +b.dataset.specialClear,
-            1
+        const a =
+          JSON.parse(
+            localStorage.getItem(
+              'abstellkarte-other-storage'
+            ) || '[]'
           );
 
-          localStorage.setItem(
-            'abstellkarte-other-storage',
-            JSON.stringify(a)
-          );
+        a.splice(
+          +b.dataset.specialClear,
+          1
+        );
 
-          render();
+        localStorage.setItem(
+          'abstellkarte-other-storage',
+          JSON.stringify(a)
+        );
 
-        };
+        render();
       }
     );
-
 }
 
-function openEditor(ti,si){
+function openEditor(ti,si) {
 
-  selected={
-    ti,
-    si
-  };
+  selected = {ti,si};
 
-  const s=
-    tracks[ti].slots[si];
+  const s = tracks[ti].slots[si];
 
-  document.getElementById('modalTitle').textContent=
+  document.getElementById('modalTitle').textContent =
     'Abstellplatz bearbeiten';
 
-  document.getElementById('modalSub').textContent=
+  document.getElementById('modalSub').textContent =
     tracks[ti].name+' · '+s.id;
 
-  document.getElementById(
-    'placementField'
-  ).style.display='none';
+  document.getElementById('placementField').style.display='none';
+  document.getElementById('slotChoiceField').style.display='none';
+  document.getElementById('specialTrackField').style.display='none';
 
-  document.getElementById(
-    'slotChoiceField'
-  ).style.display='none';
-
-  document.getElementById(
-    'specialTrackField'
-  ).style.display='none';
-
-  document.getElementById('status').value=
-    s.status;
-
-  document.getElementById('locoInput').value=
-    s.loco||'';
-
-  document.getElementById('noteInput').value=
-    s.note||'';
+  document.getElementById('status').value=s.status;
+  document.getElementById('locoInput').value=s.loco||'';
+  document.getElementById('noteInput').value=s.note||'';
 
   syncLoco();
 
-  document
-    .getElementById('backdrop')
-    .classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
 
-  if(
-    s.status==='occupied'
-  ){
-
-    document
-      .getElementById('locoInput')
-      .focus();
-
-  }
-
+  if(s.status==='occupied')
+    document.getElementById('locoInput').focus();
 }
 
-function syncLoco(){
-
-  document.getElementById(
-    'locoField'
-  ).style.display=
-
-    document.getElementById(
-      'status'
-    ).value==='occupied'
-
+function syncLoco() {
+  document.getElementById('locoField').style.display =
+    document.getElementById('status').value==='occupied'
       ? 'grid'
       : 'none';
-
 }
 
-function formatLoco(){
+function formatLoco() {
 
-  const input=
-    document.getElementById(
-      'locoInput'
-    );
+  const input =
+    document.getElementById('locoInput');
 
-  const digits=
+  const digits =
     input.value
       .replace(/\D/g,'')
       .slice(0,6);
 
-  input.value=
+  input.value =
     digits.length>3
       ? digits.slice(0,3)+' '+digits.slice(3)
       : digits;
-
 }
 
-function openAdd(){
+function openAdd() {
 
-  const choice=
-    document.getElementById(
-      'slotChoice'
-    );
+  const choice =
+    document.getElementById('slotChoice');
 
   const free=[];
 
-  tracks.forEach(
-    (t,ti)=>{
-
-      t.slots.forEach(
-        (s,si)=>{
-
-          if(
-            !s.fixed &&
-            s.status==='free'
-          ){
-
-            free.push({
-              ti,
-              si,
-              label:t.name+' · '+s.id
-            });
-
-          }
-
-        }
-      );
-
-    }
+  tracks.forEach((t,ti)=>
+    t.slots.forEach((s,si)=>{
+      if(!s.fixed&&s.status==='free')
+        free.push({
+          ti,
+          si,
+          label:t.name+' · '+s.id
+        });
+    })
   );
 
-  choice.innerHTML=
+  choice.innerHTML =
     free.map(
       (x,i)=>
         `<option value="${i}">
@@ -1751,94 +1317,52 @@ function openAdd(){
         </option>`
     ).join('');
 
-  window.addChoices=
-    free;
+  window.addChoices=free;
 
-  document.getElementById(
-    'modalTitle'
-  ).textContent=
+  document.getElementById('modalTitle').textContent =
     'Lok abstellen';
 
-  document.getElementById(
-    'modalSub'
-  ).textContent=
+  document.getElementById('modalSub').textContent =
     'Stellplatz auswählen';
 
-  document.getElementById(
-    'placementField'
-  ).style.display='grid';
+  document.getElementById('placementField').style.display='grid';
+  document.getElementById('slotChoiceField').style.display='grid';
+  document.getElementById('specialTrackField').style.display='none';
 
-  document.getElementById(
-    'slotChoiceField'
-  ).style.display='grid';
-
-  document.getElementById(
-    'specialTrackField'
-  ).style.display='none';
-
-  document.getElementById(
-    'placement'
-  ).value='regular';
-
-  document.getElementById(
-    'status'
-  ).value='occupied';
-
-  document.getElementById(
-    'locoInput'
-  ).value='';
-
-  document.getElementById(
-    'noteInput'
-  ).value='';
+  document.getElementById('placement').value='regular';
+  document.getElementById('status').value='occupied';
+  document.getElementById('locoInput').value='';
+  document.getElementById('noteInput').value='';
 
   syncLoco();
 
-  document.getElementById(
-    'clearBtn'
-  ).style.display='none';
+  document.getElementById('clearBtn').style.display='none';
 
-  document.getElementById(
-    'backdrop'
-  ).classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
 
-  document.getElementById(
-    'locoInput'
-  ).focus();
-
+  document.getElementById('locoInput').focus();
 }
 
-function close(){
-
+function close() {
   document
     .getElementById('backdrop')
     .classList.remove('open');
 
   selected=null;
-
 }
 
-function toast(msg){
+function toast(msg) {
 
-  const el=
-    document.getElementById(
-      'toast'
-    );
+  const el =
+    document.getElementById('toast');
 
-  el.textContent=
-    msg;
-
-  el.classList.add(
-    'show'
-  );
+  el.textContent=msg;
+  el.classList.add('show');
 
   setTimeout(
-    ()=>el.classList.remove(
-      'show'
-    ),
+    ()=>el.classList.remove('show'),
     2400
   );
-
 }
 
 document
@@ -1860,85 +1384,55 @@ document
   .addEventListener(
     'change',
     ()=>{
+      const special =
+        document.getElementById('placement').value==='special';
 
-      const special=
-        document.getElementById(
-          'placement'
-        ).value==='special';
+      document.getElementById('slotChoiceField').style.display =
+        special ? 'none' : 'grid';
 
-      document.getElementById(
-        'slotChoiceField'
-      ).style.display=
-        special
-          ? 'none'
-          : 'grid';
-
-      document.getElementById(
-        'specialTrackField'
-      ).style.display=
-        special
-          ? 'grid'
-          : 'none';
-
+      document.getElementById('specialTrackField').style.display =
+        special ? 'grid' : 'none';
     }
   );
 
-document.getElementById(
-  'closeBtn'
-).onclick=close;
-
-document.getElementById(
-  'cancelBtn'
-).onclick=close;
+document.getElementById('closeBtn').onclick=close;
+document.getElementById('cancelBtn').onclick=close;
 
 document
   .getElementById('backdrop')
   .addEventListener(
     'click',
     e=>{
-      if(
-        e.target.id==='backdrop'
-      ){
+      if(e.target.id==='backdrop')
         close();
-      }
     }
   );
 
 document.addEventListener(
   'keydown',
   e=>{
-    if(
-      e.key==='Escape'
-    ){
+    if(e.key==='Escape')
       close();
-    }
   }
 );
 
-document.getElementById(
-  'saveBtn'
-).onclick=()=>{
+document.getElementById('saveBtn').onclick=()=>{
 
-  const status=
-    document.getElementById(
-      'status'
-    ).value;
+  const status =
+    document.getElementById('status').value;
 
-  const loco=
-    document.getElementById(
-      'locoInput'
-    ).value
+  const loco =
+    document
+      .getElementById('locoInput')
+      .value
       .replace(/\s/g,'');
 
   if(
     status==='occupied' &&
     !/^\d{6}$/.test(loco)
-  ){
-
+  ) {
     document
-      .getElementById(
-        'locoInput'
-      )
+      .getElementById('locoInput')
       .focus();
 
     toast(
@@ -1948,45 +1442,30 @@ document.getElementById(
     return;
   }
 
-  const note=
+  const note =
     document
-      .getElementById(
-        'noteInput'
-      )
+      .getElementById('noteInput')
       .value
       .trim();
 
   if(
-    !document.getElementById(
-      'placementField'
-    ).style.display ||
+    !document.getElementById('placementField').style.display ||
+    document.getElementById('placementField').style.display==='none'
+  ) {
 
-    document.getElementById(
-      'placementField'
-    ).style.display==='none'
-  ){
+    if(!selected)
+      return;
 
-    if(!selected) return;
+    const s =
+      tracks[selected.ti].slots[selected.si];
 
-    const s=
-      tracks[
-        selected.ti
-      ].slots[
-        selected.si
-      ];
-
-    s.status=
-      status;
-
-    s.loco=
+    s.status=status;
+    s.loco =
       status==='occupied'
-        ? document.getElementById(
-            'locoInput'
-          ).value
+        ? document.getElementById('locoInput').value
         : '';
 
-    s.note=
-      note;
+    s.note=note;
 
     persist();
     render();
@@ -2000,44 +1479,34 @@ document.getElementById(
   }
 
   if(
-    document.getElementById(
-      'placement'
-    ).value==='special'
-  ){
+    document.getElementById('placement').value==='special'
+  ) {
 
-    const track=
-      document.getElementById(
-        'specialTrackInput'
-      ).value.trim();
+    const track =
+      document
+        .getElementById('specialTrackInput')
+        .value
+        .trim();
 
-    if(!track){
-
+    if(!track) {
       toast(
         'Bitte Gleis oder Abstellort eintragen.'
       );
-
       return;
     }
 
-    const items=
+    const items =
       JSON.parse(
         localStorage.getItem(
           'abstellkarte-other-storage'
-        )||'[]'
+        ) || '[]'
       );
 
     items.push({
-      loco:
-        document.getElementById(
-          'locoInput'
-        ).value,
-
+      loco:document.getElementById('locoInput').value,
       track,
-
       note,
-
-      time:
-        new Date().toISOString()
+      time:new Date().toISOString()
     });
 
     localStorage.setItem(
@@ -2055,41 +1524,24 @@ document.getElementById(
     return;
   }
 
-  if(
-    !window.addChoices?.length
-  ){
-
+  if(!window.addChoices?.length) {
     toast(
       'Kein freier Stellplatz vorhanden.'
     );
-
     return;
   }
 
-  const pick=
+  const pick =
     window.addChoices[
-      +document.getElementById(
-        'slotChoice'
-      ).value
+      +document.getElementById('slotChoice').value
     ];
 
-  const s=
-    tracks[
-      pick.ti
-    ].slots[
-      pick.si
-    ];
+  const s =
+    tracks[pick.ti].slots[pick.si];
 
-  s.status=
-    'occupied';
-
-  s.loco=
-    document.getElementById(
-      'locoInput'
-    ).value;
-
-  s.note=
-    note;
+  s.status='occupied';
+  s.loco=document.getElementById('locoInput').value;
+  s.note=note;
 
   persist();
   render();
@@ -2098,25 +1550,17 @@ document.getElementById(
   toast(
     'Lok wurde abgestellt.'
   );
-
 };
 
-document.getElementById(
-  'clearBtn'
-).onclick=()=>{
+document.getElementById('clearBtn').onclick=()=>{
 
-  if(!selected) return;
+  if(!selected)
+    return;
 
-  const s=
-    tracks[
-      selected.ti
-    ].slots[
-      selected.si
-    ];
+  const s =
+    tracks[selected.ti].slots[selected.si];
 
-  s.status=
-    'free';
-
+  s.status='free';
   s.loco='';
   s.note='';
 
@@ -2127,28 +1571,19 @@ document.getElementById(
   toast(
     'Platz wurde freigegeben.'
   );
-
 };
 
-document.getElementById(
-  'addBtn'
-).onclick=
-  openAdd;
+document.getElementById('addBtn').onclick=openAdd;
 
-document.getElementById(
-  'resetBtn'
-).onclick=()=>{
+document.getElementById('resetBtn').onclick=()=>{
 
   if(
     confirm(
       'Demo-Belegung wirklich zurücksetzen?'
     )
-  ){
+  ) {
 
-    tracks=
-      structuredClone(
-        initial
-      );
+    tracks=structuredClone(initial);
 
     persist();
     render();
@@ -2156,17 +1591,12 @@ document.getElementById(
     toast(
       'Demo zurückgesetzt.'
     );
-
   }
-
 };
 
-document.getElementById(
-  'exportBtn'
-).onclick=()=>{
+document.getElementById('exportBtn').onclick=()=>{
 
   const rows=[
-
     [
       'Gleis',
       'Platz',
@@ -2176,9 +1606,9 @@ document.getElementById(
     ],
 
     ...tracks.flatMap(
-      t=>
+      t =>
         t.slots.map(
-          s=>[
+          s => [
             t.name,
             s.id,
             labels[s.status],
@@ -2191,9 +1621,9 @@ document.getElementById(
     ...JSON.parse(
       localStorage.getItem(
         'abstellkarte-other-storage'
-      )||'[]'
+      ) || '[]'
     ).map(
-      x=>[
+      x => [
         'Sondergleis',
         x.track,
         'Belegt',
@@ -2201,48 +1631,40 @@ document.getElementById(
         x.note||''
       ]
     )
-
   ];
 
-  const csv=
-    '\ufeff'+
+  const csv =
+    '\ufeff' +
     rows
       .map(
-        r=>
-          r.map(
-            v=>
-              '"'+
-              String(v)
-                .replace(/"/g,'""')+
-              '"'
-          ).join(';')
+        r =>
+          r
+            .map(
+              v =>
+                '"'+
+                String(v).replace(/"/g,'""')+
+                '"'
+            )
+            .join(';')
       )
       .join('\r\n');
 
-  const a=
-    document.createElement(
-      'a'
-    );
+  const a=document.createElement('a');
 
-  a.href=
+  a.href =
     URL.createObjectURL(
       new Blob(
         [csv],
         {
-          type:
-            'text/csv;charset=utf-8;'
+          type:'text/csv;charset=utf-8;'
         }
       )
     );
 
-  a.download=
-    'abstellkarte.csv';
-
+  a.download='abstellkarte.csv';
   a.click();
 
-  URL.revokeObjectURL(
-    a.href
-  );
+  URL.revokeObjectURL(a.href);
 
   setTimeout(
     ()=>window.print(),
@@ -2252,11 +1674,140 @@ document.getElementById(
   toast(
     'CSV erstellt – Druckdialog für PDF geöffnet.'
   );
-
 };
 
 render();
+</script>
 
+<script>
+const otherStorageKey =
+  'abstellkarte-other-storage';
+
+function renderOtherStorage() {
+
+  const items =
+    JSON.parse(
+      localStorage.getItem(otherStorageKey)||'[]'
+    );
+
+  const list =
+    document.getElementById(
+      'otherStorageList'
+    );
+
+  document.getElementById(
+    'otherStorageMeta'
+  ).textContent =
+    items.length+' Abstellungen';
+
+  list.innerHTML =
+    items.length
+      ? items.map(
+          (x,i)=>
+            '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--surface2);display:flex;justify-content:space-between;gap:12px;align-items:flex-start">'+
+              '<div>'+
+                '<div style="font-weight:800">'+
+                  esc(x.loco)+
+                '</div>'+
+                '<div class="muted">'+
+                  'Gleis / Abstellort: '+
+                  esc(x.track)+
+                '</div>'+
+                (
+                  x.note
+                    ? '<div class="slot-note" style="margin-top:4px">'+
+                        esc(x.note)+
+                      '</div>'
+                    : ''
+                )+
+              '</div>'+
+              '<button class="danger" data-other-clear="'+i+'">'+
+                'Löschen'+
+              '</button>'+
+            '</div>'
+        ).join('')
+      : '<div class="muted">Noch keine Abstellungen außerhalb des Betriebswerks erfasst.</div>';
+
+  list
+    .querySelectorAll('[data-other-clear]')
+    .forEach(
+      b =>
+        b.onclick=()=>{
+
+          const a =
+            JSON.parse(
+              localStorage.getItem(
+                otherStorageKey
+              )||'[]'
+            );
+
+          a.splice(
+            +b.dataset.otherClear,
+            1
+          );
+
+          localStorage.setItem(
+            otherStorageKey,
+            JSON.stringify(a)
+          );
+
+          renderOtherStorage();
+        }
+    );
+}
+
+document.getElementById(
+  'otherStorageBtn'
+).onclick=()=>{
+
+  const loco =
+    prompt(
+      'Loknummer / Fahrzeug-ID:'
+    );
+
+  if(!loco||!loco.trim())
+    return;
+
+  const track =
+    prompt(
+      'Gleis / Abstellort:'
+    );
+
+  if(!track||!track.trim())
+    return;
+
+  const note =
+    prompt(
+      'Bemerkung (optional):'
+    )||'';
+
+  const items =
+    JSON.parse(
+      localStorage.getItem(
+        otherStorageKey
+      )||'[]'
+    );
+
+  items.push({
+    loco:loco.trim(),
+    track:track.trim(),
+    note:note.trim(),
+    time:new Date().toISOString()
+  });
+
+  localStorage.setItem(
+    otherStorageKey,
+    JSON.stringify(items)
+  );
+
+  renderOtherStorage();
+
+  toast(
+    'Abstellung außerhalb des Betriebswerks gespeichert.'
+  );
+};
+
+renderOtherStorage();
 </script>
 
 </body>
