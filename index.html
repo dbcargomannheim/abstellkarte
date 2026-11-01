@@ -218,7 +218,7 @@ const makeSlots=(prefix,count)=>Array.from({length:count},(_,i)=>({
 const initial=[
  {name:'Gleis 39W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('39W',9).reverse()},
  {name:'Gleis 40W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('40W',9).reverse()},
- {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · 41Mitte',slots:[{id:'41Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('41W',2)]},
+ {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',slots:[...makeSlots('41W',2),{id:'41Mitte',status:'free',loco:'',note:'',fixed:false}]},
  {name:'Gleis 42W',description:'Prellbock · 42W3 · 42W2 · 42W1 · Weiche · 42Mitte · Hilfszug',slots:[{id:'Hilfszug',status:'occupied',loco:'',note:'Hilfszug · dauerhaft belegt',fixed:true},{id:'42Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('42W',3)]}
 ];
 
@@ -265,8 +265,8 @@ function render(){
       cells=track.slots.map((s,si)=>regular(s,ti,si)).join('')+'<div class="infra">SCHIEBEBÜHNE</div>';
     }else if(ti===2){
       cells='<div class="infra">TANKSTELLE</div><div class="infra">WEICHE</div>'+
-        regular(track.slots[2],ti,2)+regular(track.slots[1],ti,1)+
-        regular(track.slots[0],ti,0)+'<div class="infra">Schiebebühne</div>';
+        regular(track.slots[1],ti,1)+regular(track.slots[0],ti,0)+
+        '<div class="infra">Schiebebühne</div>'+regular(track.slots[2],ti,2);
     }else{
       cells='<div class="infra">PRELLBOCK</div>'+
         regular(track.slots[4],ti,4)+regular(track.slots[3],ti,3)+regular(track.slots[2],ti,2)+
