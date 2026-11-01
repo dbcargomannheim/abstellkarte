@@ -1,12 +1,12 @@
+
 <!doctype html>
 <html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abstellkarte · Betriebswerk</title>
-
 <style>
-:root{
+:root {
   color-scheme:light dark;
   --bg:light-dark(#f3f6f8,#10171e);
   --surface:light-dark(#fff,#1a242e);
@@ -24,1139 +24,306 @@
   --red:light-dark(#ffe0df,#4b2426);
   --redText:light-dark(#a52d2a,#ffaaa6);
 }
-
 *{box-sizing:border-box}
-
-html,body{
-  width:100%;
-  max-width:100%;
-  overflow-x:hidden;
-}
-
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-
-#app{
-  min-height:100vh;
-  width:100%;
-  background:var(--bg);
-}
-
-header{
-  padding:24px clamp(16px,4vw,42px) 20px;
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:20px;
-  flex-wrap:wrap;
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:13px;
-}
-
-.logo{
-  width:44px;
-  height:44px;
-  display:grid;
-  place-items:center;
-  border-radius:12px;
-  background:var(--blue);
-  color:var(--blueText);
-  font-size:24px;
-}
-
-h1{
-  font-size:clamp(21px,3vw,29px);
-  letter-spacing:-.7px;
-  margin:0;
-}
-
-.subtitle{
-  color:var(--muted);
-  font-size:13px;
-  margin-top:3px;
-}
-
-.header-right{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-
-.pill{
-  border:1px solid var(--border);
-  background:var(--surface2);
-  padding:7px 11px;
-  border-radius:99px;
-  color:var(--muted);
-  font-size:12px;
-  display:flex;
-  align-items:center;
-  gap:7px;
-}
-
-.dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#d69b25;
-}
-
-main{
-  max-width:1300px;
-  margin:auto;
-  padding:25px clamp(14px,3vw,34px) 40px;
-}
-
-.topline{
-  display:flex;
-  justify-content:space-between;
-  align-items:end;
-  gap:16px;
-  flex-wrap:wrap;
-  margin-bottom:18px;
-}
-
-h2{
-  font-size:20px;
-  margin:0 0 4px;
-  letter-spacing:-.3px;
-}
-
-.muted{
-  color:var(--muted);
-  font-size:13px;
-}
-
-.actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-button,input,select,textarea{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-  border:1px solid var(--border);
-  border-radius:9px;
-  padding:9px 13px;
-  background:var(--surface);
-  color:var(--text);
-  font-weight:600;
-}
-
-button:hover{
-  border-color:var(--accent);
-}
-
-button.primary{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:white;
-}
-
-button.danger{
-  color:var(--redText);
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;
-  margin-bottom:23px;
-}
-
-.stat{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:13px;
-  padding:15px 17px;
-}
-
-.stat-label{
-  font-size:12px;
-  color:var(--muted);
-}
-
-.stat-value{
-  font-size:27px;
-  font-weight:750;
-  letter-spacing:-.8px;
-  margin-top:4px;
-}
-
-.stat-foot{
-  font-size:11px;
-  color:var(--muted);
-  margin-top:2px;
-}
-
-.legend{
-  display:flex;
-  gap:13px;
-  flex-wrap:wrap;
-  margin-bottom:15px;
-}
-
-.legend span{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  color:var(--muted);
-  font-size:12px;
-}
-
-.swatch{
-  width:9px;
-  height:9px;
-  border-radius:3px;
-}
-
-.track-list{
-  display:grid;
-  gap:14px;
-  min-width:0;
-}
-
-.track{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-  min-width:0;
-}
-
-.track-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  padding:13px 17px;
-  background:var(--surface2);
-  border-bottom:1px solid var(--border);
-  min-width:0;
-}
-
-.track-name{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:750;
-  min-width:0;
-}
-
-.track-icon{
-  color:var(--muted);
-  font-size:19px;
-}
-
-.track-meta{
-  font-size:12px;
-  color:var(--muted);
-  font-weight:400;
-}
-
-.slots{
-  padding:16px;
-  display:block;
-  position:relative;
-  min-width:0;
-  overflow-x:auto;
-  overflow-y:hidden;
-}
-
-.track-diagram{
-  display:grid;
-  grid-template-columns:repeat(12,minmax(76px,1fr));
-  gap:10px;
-  align-items:stretch;
-  min-width:980px;
-}
-
-.slot{
-  min-height:112px;
-  text-align:left;
-  padding:11px;
-  border-radius:10px;
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-  transition:transform .12s;
-}
-
-.slot:hover{
-  transform:translateY(-2px);
-}
-
-.slot.free{
-  background:var(--green);
-  border-color:transparent;
-  color:var(--greenText);
-}
-
-.slot.occupied{
-  background:var(--blue);
-  border-color:transparent;
-  color:var(--blueText);
-}
-
-.slot.reserved{
-  background:var(--yellow);
-  border-color:transparent;
-  color:var(--yellowText);
-}
-
-.slot.blocked{
-  background:var(--red);
-  border-color:transparent;
-  color:var(--redText);
-}
-
-.slot-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:11px;
-  opacity:.9;
-}
-
-.slot-status{
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  font-weight:750;
-  white-space:nowrap;
-}
-
-.loco{
-  font-size:17px;
-  font-weight:800;
-  letter-spacing:-.4px;
-  overflow-wrap:anywhere;
-}
-
-.slot-note{
-  font-size:11px;
-  opacity:.85;
-  line-height:1.3;
-}
-
-.slot-action{
-  margin-top:auto;
-  font-size:11px;
-  opacity:.8;
-}
-
-.fixed-slot{
-  cursor:default!important;
-  transform:none!important;
-}
-
-.fixed-slot:hover{
-  border-color:var(--border)!important;
-}
-
-.infra{
-  min-height:112px;
-  border:1px dashed var(--border);
-  border-radius:10px;
-  background:var(--surface2);
-  color:var(--muted);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-size:11px;
-  font-weight:750;
-  padding:8px;
-}
-
-.stage{
-  border:2px solid var(--border);
-  background:var(--surface2);
-  position:relative;
-  overflow:hidden;
-}
-
-.stage:before,
-.stage:after{
-  content:"";
-  position:absolute;
-  left:10px;
-  right:10px;
-  height:5px;
-  background:var(--border);
-  top:35px;
-  box-shadow:0 35px 0 var(--border);
-}
-
-.switch{
-  border:1px solid var(--border);
-  background:var(--surface2);
-  font-size:11px;
-}
-
-.tank{
-  background:var(--blue);
-  color:var(--blueText);
-}
-
-.buffer-stop{
-  margin:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:10px 8px;
-  border:2px solid var(--border);
-  border-radius:8px;
-  background:var(--surface2);
-  color:var(--muted);
-  font-size:11px;
-  font-weight:750;
-  writing-mode:vertical-rl;
-  min-width:48px;
-}
-
-.buffer-symbol{
-  width:30px;
-  height:30px;
-  flex:0 0 30px;
-  position:relative;
-  border-left:5px solid #b65b43;
-  border-right:5px solid #b65b43;
-  writing-mode:horizontal-tb;
-}
-
-.buffer-symbol:before,
-.buffer-symbol:after{
-  content:"";
-  position:absolute;
-  left:-5px;
-  right:-5px;
-  height:5px;
-  background:#b65b43;
-}
-
-.buffer-symbol:before{top:4px}
-.buffer-symbol:after{bottom:4px}
-
-.hilfszug{
-  min-height:112px;
-  border:2px solid var(--border);
-  border-radius:10px;
-  background:var(--surface2);
-  color:var(--muted);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-size:11px;
-  font-weight:750;
-  writing-mode:horizontal-tb;
-  white-space:nowrap;
-}
-
-.special-row{
-  margin-top:12px;
-  border-top:1px dashed var(--border);
-  padding-top:12px;
-}
-
-.special-title{
-  font-size:11px;
-  font-weight:750;
-  color:var(--muted);
-  margin-bottom:8px;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-}
-
-.modal-backdrop{
-  position:fixed;
-  inset:0;
-  background:#07111dcc;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-  z-index:10;
-}
-
-.modal-backdrop.open{
-  display:flex;
-}
-
-.modal{
-  width:min(560px,100%);
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:22px;
-  box-shadow:0 20px 80px #0004;
-}
-
-.modal-head{
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-  align-items:start;
-  margin-bottom:18px;
-}
-
-.modal h3{
-  margin:0;
-  font-size:21px;
-}
-
-.close{
-  padding:4px 9px;
-  font-size:20px;
-}
-
-.field{
-  display:grid;
-  gap:6px;
-  margin:14px 0;
-}
-
-label{
-  font-size:12px;
-  font-weight:700;
-  color:var(--muted);
-}
-
-input,select,textarea{
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:9px;
-  background:var(--bg);
-  color:var(--text);
-  padding:11px;
-  outline:none;
-}
-
-input:focus,
-select:focus,
-textarea:focus{
-  border-color:var(--accent);
-}
-
-.modal-actions{
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  margin-top:22px;
-}
-
-.right-actions{
-  display:flex;
-  gap:8px;
-}
-
-.hint{
-  font-size:11px;
-  color:var(--muted);
-}
-
-.toast{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:var(--text);
-  color:var(--bg);
-  padding:11px 16px;
-  border-radius:10px;
-  font-size:13px;
-  box-shadow:0 5px 25px #0003;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .2s;
-  z-index:20;
-}
-
-.toast.show{
-  opacity:1;
-}
-
-#otherStorageList{
-  display:grid;
-  gap:10px;
-}
-
-@media(max-width:850px){
-  .stats{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-}
-
-@media(max-width:480px){
-  header{
-    align-items:flex-start;
-  }
-
-  .stat{
-    padding:12px;
-  }
-
-  .stat-value{
-    font-size:23px;
-  }
-
-  .track-head{
-    align-items:flex-start;
-    flex-direction:column;
-  }
-}
+html,body{margin:0;width:100%;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:22px clamp(14px,4vw,40px);background:var(--surface);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:var(--blue);color:var(--blueText);font-size:24px}
+h1{font-size:clamp(21px,3vw,29px);margin:0}
+.subtitle,.muted{color:var(--muted);font-size:13px}
+.header-right,.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{border:1px solid var(--border);background:var(--surface2);padding:7px 11px;border-radius:99px;color:var(--muted);font-size:12px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#d69b25;margin-right:6px}
+main{max-width:1300px;margin:auto;padding:24px clamp(12px,3vw,34px) 40px}
+.topline{display:flex;justify-content:space-between;align-items:end;gap:15px;flex-wrap:wrap;margin-bottom:18px}
+h2{font-size:20px;margin:0 0 4px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:1px solid var(--border);border-radius:9px;padding:9px 13px;background:var(--surface);color:var(--text);font-weight:600}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:white}
+button.danger{color:var(--redText)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.stat,.panel{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:15px}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{font-size:27px;font-weight:750;margin-top:4px}
+.stat-foot{font-size:11px;color:var(--muted)}
+.legend{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:15px}
+.legend span{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+.swatch{width:9px;height:9px;border-radius:3px}
+.track-list{display:grid;gap:14px}
+.track{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.track-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 17px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.track-name{font-weight:750}
+.track-meta{font-size:12px;color:var(--muted);font-weight:400}
+.slots{padding:14px;overflow-x:auto}
+.track-diagram{display:flex;gap:9px;min-width:max-content;align-items:stretch}
+.slot{width:112px;min-height:112px;text-align:left;padding:10px;border-radius:10px;display:flex;flex-direction:column;gap:6px}
+.slot.free{background:var(--green);border-color:transparent;color:var(--greenText)}
+.slot.occupied{background:var(--blue);border-color:transparent;color:var(--blueText)}
+.slot.reserved{background:var(--yellow);border-color:transparent;color:var(--yellowText)}
+.slot.blocked{background:var(--red);border-color:transparent;color:var(--redText)}
+.slot-top{display:flex;justify-content:space-between;font-size:11px}
+.slot-status{font-size:10px;text-transform:uppercase;font-weight:750}
+.loco{font-size:16px;font-weight:800;overflow-wrap:anywhere}
+.slot-note{font-size:11px;opacity:.85}
+.slot-action{margin-top:auto;font-size:10px;opacity:.8}
+.infra{min-width:90px;min-height:112px;border:1px dashed var(--border);border-radius:10px;background:var(--surface2);color:var(--muted);display:grid;place-items:center;text-align:center;font-size:11px;font-weight:750;padding:8px}
+.footer-note{margin-top:20px;padding:13px 15px;border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:12px}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.history-list{display:grid;gap:8px}
+.history-entry{display:grid;grid-template-columns:105px minmax(0,1fr);gap:12px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
+.history-type{font-size:11px;font-weight:800;text-transform:uppercase}
+.history-type.in{color:var(--greenText)}
+.history-type.out{color:var(--redText)}
+.history-time{font-size:11px;color:var(--muted);margin-top:3px}
+.history-details{font-size:13px;overflow-wrap:anywhere}
+.history-details strong{font-size:14px}
+.history-note{font-size:12px;color:var(--muted);margin-top:3px}
+.empty-history{color:var(--muted);font-size:13px;padding:12px}
+.modal-backdrop{position:fixed;inset:0;background:#07111dcc;display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal-backdrop.open{display:flex}
+.modal{width:min(500px,100%);max-height:92vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:21px}
+.modal-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:16px}
+.modal h3{margin:0;font-size:21px}
+.close{padding:4px 9px;font-size:20px}
+.field{display:grid;gap:6px;margin:13px 0}
+label{font-size:12px;font-weight:700;color:var(--muted)}
+input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);padding:11px}
+.modal-actions{display:flex;justify-content:space-between;gap:8px;margin-top:20px}
+.right-actions{display:flex;gap:8px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:11px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.show{opacity:1}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.history-entry{grid-template-columns:1fr;gap:5px}}
 </style>
 </head>
-
 <body>
-<div id="app">
-
 <header>
   <div class="brand">
     <div class="logo">↔</div>
-    <div>
-      <h1>Abstellkarte</h1>
-      <div class="subtitle">Betriebswerk · Digitale Gleisbelegung</div>
-    </div>
+    <div><h1>Abstellkarte</h1><div class="subtitle">Betriebswerk · Digitale Gleisbelegung</div></div>
   </div>
-
   <div class="header-right">
-    <div class="pill">
-      <span class="dot"></span>
-      <span id="syncLabel">Verbinde mit Supabase …</span>
-    </div>
+    <div class="pill"><span class="dot" id="syncDot"></span><span id="syncLabel">Verbinde mit Supabase …</span></div>
     <button id="resetBtn">Belegung zurücksetzen</button>
   </div>
 </header>
 
 <main>
-
   <div class="topline">
-    <div>
-      <h2>Gleisübersicht</h2>
-      <div class="muted">
-        Abstellplätze auswählen, Belegung bearbeiten und Status im Blick behalten.
-      </div>
-    </div>
-
+    <div><h2>Gleisübersicht</h2><div class="muted">Abstellplätze auswählen, Belegung bearbeiten und Status im Blick behalten.</div></div>
     <div class="actions">
       <button id="exportBtn">↓ Belegung exportieren</button>
-      <button id="otherStorageBtn">▣ Abstellung in anderen Gleisen</button>
+      <button id="otherStorageBtn">▣ Andere Gleise</button>
       <button class="primary" id="addBtn">＋ Lok abstellen</button>
     </div>
   </div>
 
   <section class="stats">
-    <div class="stat">
-      <div class="stat-label">Abstellplätze gesamt</div>
-      <div class="stat-value" id="total">25</div>
-      <div class="stat-foot">über alle Gleise</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-label">Belegt</div>
-      <div class="stat-value" id="occupied">0</div>
-      <div class="stat-foot" id="occupiedFoot">0 % Auslastung</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-label">Frei</div>
-      <div class="stat-value" id="free">25</div>
-      <div class="stat-foot">sofort verfügbar</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-label">Reserviert / gesperrt</div>
-      <div class="stat-value" id="other">0</div>
-      <div class="stat-foot">nicht regulär verfügbar</div>
-    </div>
+    <div class="stat"><div class="stat-label">Abstellplätze gesamt</div><div class="stat-value" id="total">25</div><div class="stat-foot">über alle Gleise</div></div>
+    <div class="stat"><div class="stat-label">Belegt</div><div class="stat-value" id="occupied">0</div><div class="stat-foot" id="occupiedFoot">0 % Auslastung</div></div>
+    <div class="stat"><div class="stat-label">Frei</div><div class="stat-value" id="free">25</div><div class="stat-foot">sofort verfügbar</div></div>
+    <div class="stat"><div class="stat-label">Reserviert / gesperrt</div><div class="stat-value" id="other">0</div><div class="stat-foot">nicht regulär verfügbar</div></div>
   </section>
 
   <div class="legend">
-    <span><i class="swatch" style="background:#35a66b"></i> Frei</span>
-    <span><i class="swatch" style="background:#368ed0"></i> Belegt</span>
-    <span><i class="swatch" style="background:#d8a22d"></i> Reserviert</span>
-    <span><i class="swatch" style="background:#d9534f"></i> Gesperrt</span>
+    <span><i class="swatch" style="background:#35a66b"></i>Frei</span>
+    <span><i class="swatch" style="background:#368ed0"></i>Belegt</span>
+    <span><i class="swatch" style="background:#d8a22d"></i>Reserviert</span>
+    <span><i class="swatch" style="background:#d9534f"></i>Gesperrt</span>
   </div>
 
   <div class="track-list" id="tracks"></div>
 
-  <section class="track">
-    <div class="track-head">
-      <div class="track-name">
-        <span class="track-icon">▣</span>
-        <span>
-          Abstellungen in anderen Gleisen
-          <span class="track-meta">· außerhalb des Betriebswerks</span>
-        </span>
-      </div>
-      <div class="track-meta" id="otherStorageMeta">0 Abstellungen</div>
+  <section class="panel" style="margin-top:16px" id="otherStorageSection">
+    <div class="section-heading">
+      <div><strong>Abstellungen in anderen Gleisen</strong><div class="muted">Außerhalb des Betriebswerks</div></div>
+      <span class="track-meta" id="otherStorageMeta">0 Abstellungen</span>
     </div>
-
-    <div id="otherStorageList" style="padding:16px">
-      <div class="muted">Noch keine Abstellungen außerhalb des Betriebswerks erfasst.</div>
-    </div>
+    <div id="otherStorageList" class="history-list"></div>
   </section>
 
-  <div class="footer-note" style="margin-top:20px;padding:13px 15px;border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:12px">
-    <strong>Hinweis:</strong>
-    Die Belegungsdaten werden zentral in Supabase gespeichert und in Echtzeit
-    zwischen den geöffneten Geräten synchronisiert.
-  </div>
+  <section class="panel" style="margin-top:16px" id="historySection">
+    <div class="section-heading">
+      <div><strong>Buchungshistorie</strong><div class="muted">Die letzten 100 Ein- und Ausbuchungen</div></div>
+      <button id="refreshHistoryBtn">↻ Aktualisieren</button>
+    </div>
+    <div id="historyList" class="history-list"><div class="empty-history">Buchungshistorie wird geladen …</div></div>
+  </section>
+
+  <div class="footer-note"><strong>Hinweis:</strong> Die Belegungsdaten werden zentral in Supabase gespeichert und in Echtzeit zwischen den geöffneten Geräten synchronisiert.</div>
 
   <footer style="margin-top:28px;padding:20px 0 6px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">
-    <div style="font-weight:750;color:var(--text);margin-bottom:5px">Impressum</div>
+    <strong style="color:var(--text)">Impressum</strong>
     <div>Angaben gemäß § 5 TMG</div>
-    <div style="margin-top:4px">Betreiber: Hr. Adrian Sold, DB Cargo Mannheim</div>
-    <div>Adresse: Riestenweg 17, 68239 Mannheim</div>
-    <div style="margin-top:4px">E-Mail: https://evi.app.db.de/persons/1246942 (Nur aus dem Intranet der DB AG erreichbar)</div>
+    <div>Betreiber: Bitte hier Name / Unternehmen eintragen</div>
+    <div>Adresse: Bitte hier Anschrift eintragen</div>
+    <div>E-Mail: Bitte hier E-Mail-Adresse eintragen</div>
   </footer>
-
 </main>
-</div>
 
 <div class="modal-backdrop" id="backdrop">
   <div class="modal" role="dialog" aria-modal="true">
-
     <div class="modal-head">
-      <div>
-        <h3 id="modalTitle">Lok abstellen</h3>
-        <div class="muted" id="modalSub">Stellplatz auswählen</div>
-      </div>
-      <button class="close" id="closeBtn" aria-label="Schließen">×</button>
+      <div><h3 id="modalTitle">Lok abstellen</h3><div class="muted" id="modalSub">Stellplatz auswählen</div></div>
+      <button class="close" id="closeBtn">×</button>
     </div>
-
     <div class="field" id="placementField">
       <label for="placement">ABSTELLART</label>
-      <select id="placement">
-        <option value="regular">Regulärer Stellplatz</option>
-        <option value="special">Sondergleis / Sonderabstellplatz</option>
-      </select>
+      <select id="placement"><option value="regular">Regulärer Stellplatz</option><option value="special">Sondergleis / Sonderabstellplatz</option></select>
     </div>
-
     <div class="field" id="slotChoiceField">
-      <label for="slotChoice">STELLPLATZ</label>
-      <select id="slotChoice"></select>
-      <div class="hint">Es werden nur freie reguläre Stellplätze angeboten.</div>
+      <label for="slotChoice">STELLPLATZ</label><select id="slotChoice"></select>
     </div>
-
     <div class="field" id="specialTrackField" style="display:none">
-      <label for="specialTrackInput">GLEIS / ABSTELLORT</label>
-      <input id="specialTrackInput" placeholder="z. B. 43W, Hofgleis, Werkstatt …">
+      <label for="specialTrackInput">GLEIS / ABSTELLORT</label><input id="specialTrackInput" placeholder="z. B. 43W, Hofgleis, Werkstatt …">
     </div>
-
     <div class="field">
       <label for="status">STATUS</label>
-      <select id="status">
-        <option value="free">Frei</option>
-        <option value="occupied">Belegt</option>
-        <option value="reserved">Reserviert</option>
-        <option value="blocked">Gesperrt</option>
-      </select>
+      <select id="status"><option value="free">Frei</option><option value="occupied">Belegt</option><option value="reserved">Reserviert</option><option value="blocked">Gesperrt</option></select>
     </div>
-
     <div class="field" id="locoField">
-      <label for="locoInput">TFZ-NUMMER</label>
-      <input
-        id="locoInput"
-        inputmode="numeric"
-        maxlength="7"
-        placeholder="123 456"
-        autocomplete="off"
-      >
-      <div class="hint">Exakt 6 Ziffern, Anzeige im Format XXX XXX.</div>
+      <label for="locoInput">TFZ-NUMMER</label><input id="locoInput" inputmode="numeric" maxlength="7" placeholder="123 456">
+      <div class="muted">Exakt 6 Ziffern, Anzeige im Format XXX XXX.</div>
     </div>
-
     <div class="field">
-      <label for="noteInput">BEMERKUNG (OPTIONAL)</label>
-      <textarea
-        id="noteInput"
-        rows="2"
-        placeholder="z. B. Richtung Ausfahrt, Besonderheiten …"
-      ></textarea>
+      <label for="noteInput">BEMERKUNG (OPTIONAL)</label><textarea id="noteInput" rows="2" placeholder="Bemerkung …"></textarea>
     </div>
-
     <div class="modal-actions">
       <button class="danger" id="clearBtn">Platz freigeben</button>
-
-      <div class="right-actions">
-        <button id="cancelBtn">Abbrechen</button>
-        <button class="primary" id="saveBtn">Speichern</button>
-      </div>
+      <div class="right-actions"><button id="cancelBtn">Abbrechen</button><button class="primary" id="saveBtn">Speichern</button></div>
     </div>
-
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
 const supabaseClient = supabase.createClient(
   'https://lpcgcmxuslaetlgtxzfs.supabase.co',
   'sb_publishable_9KVjAV4KehTzuwTCcxlAuQ_6U9CNZ4y'
 );
 
-const syncLabel = document.getElementById('syncLabel');
-const syncDot = document.querySelector('.dot');
+const syncLabel=document.getElementById('syncLabel');
+const syncDot=document.getElementById('syncDot');
+let supaReady=false;
+let supaSpecial=[];
+let selected=null;
+let historyRows=[];
 
-let supaReady = false;
-let supaSpecial = [];
-let selected = null;
-let addChoices = [];
+const makeSlots=(prefix,count)=>Array.from({length:count},(_,i)=>({
+  id:`${prefix}${i+1}`,status:'free',loco:'',note:'',fixed:false
+}));
 
-const labels = {
-  free: 'Frei',
-  occupied: 'Belegt',
-  reserved: 'Reserviert',
-  blocked: 'Gesperrt'
-};
-
-function makeSlots(prefix,count){
-  return Array.from({length:count},(_,i)=>({
-    id:`${prefix}${i+1}`,
-    status:'free',
-    loco:'',
-    note:'',
-    fixed:false
-  }));
-}
-
-/*
-  WICHTIG:
-  Die Datenstruktur bleibt unverändert.
-  Nur die visuelle Reihenfolge wird bei der Darstellung bestimmt.
-*/
-let tracks = [
-  {
-    name:'Gleis 39W',
-    description:'9 Abstellplätze · Schiebebühne rechts',
-    slots:makeSlots('39W',9).reverse()
-  },
-  {
-    name:'Gleis 40W',
-    description:'9 Abstellplätze · Schiebebühne rechts',
-    slots:makeSlots('40W',9).reverse()
-  },
-  {
-    name:'Gleis 41W',
-    description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',
-    slots:[
-      {id:'41Mitte',status:'free',loco:'',note:'',fixed:false},
-      ...makeSlots('41W',2)
-    ]
-  },
-  {
-    name:'Gleis 42W',
-    description:'Prellbock · 42W3 · 42W2 · 42W1 · Weiche · 42Mitte · Hilfszug',
-    slots:[
-      {id:'Hilfszug',status:'occupied',loco:'',note:'Hilfszug · dauerhaft belegt',fixed:true},
-      {id:'42Mitte',status:'free',loco:'',note:'',fixed:false},
-      ...makeSlots('42W',3)
-    ]
-  }
+const initial=[
+ {name:'Gleis 39W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('39W',9).reverse()},
+ {name:'Gleis 40W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('40W',9).reverse()},
+ {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',slots:[{id:'41Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('41W',2)]},
+ {name:'Gleis 42W',description:'Prellbock · 42W3 · 42W2 · 42W1 · Weiche · 42Mitte · Hilfszug',slots:[{id:'Hilfszug',status:'occupied',loco:'',note:'Hilfszug · dauerhaft belegt',fixed:true},{id:'42Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('42W',3)]}
 ];
 
+const labels={free:'Frei',occupied:'Belegt',reserved:'Reserviert',blocked:'Gesperrt'};
+let tracks=structuredClone(initial);
+
 function esc(value=''){
-  return String(value).replace(/[&<>"']/g,char=>({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
-  }[char]));
+  return String(value).replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function toast(message){
+  const el=document.getElementById('toast');
+  el.textContent=message;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2600);
 }
 
 function render(){
+  const all=tracks.flatMap(t=>t.slots).filter(s=>!s.fixed);
+  const occupied=all.filter(s=>s.status==='occupied').length;
+  const free=all.filter(s=>s.status==='free').length;
+  const other=all.length-occupied-free;
 
-  const all = tracks
-    .flatMap(t=>t.slots)
-    .filter(s=>!s.fixed);
+  document.getElementById('total').textContent=all.length;
+  document.getElementById('occupied').textContent=occupied;
+  document.getElementById('occupiedFoot').textContent=(all.length?Math.round(occupied/all.length*100):0)+' % Auslastung';
+  document.getElementById('free').textContent=free;
+  document.getElementById('other').textContent=other;
 
-  const occupied = all.filter(s=>s.status==='occupied').length;
-  const free = all.filter(s=>s.status==='free').length;
-  const other = all.length - occupied - free;
+  const regular=(s,ti,si)=>`
+    <button class="slot ${s.status}" ${s.fixed?'disabled':''} data-track="${ti}" data-slot="${si}">
+      <div class="slot-top"><strong>${esc(s.id)}</strong><span>↗</span></div>
+      <div class="slot-status">${labels[s.status]}</div>
+      <div class="loco">${s.status==='occupied'?esc(s.loco||'TFZ fehlt'):s.status==='free'?'—':labels[s.status]}</div>
+      ${s.note?`<div class="slot-note">${esc(s.note)}</div>`:''}
+      <div class="slot-action">${s.fixed?'Festes Element':'Klicken zum Bearbeiten'}</div>
+    </button>`;
 
-  document.getElementById('total').textContent = all.length;
-  document.getElementById('occupied').textContent = occupied;
-  document.getElementById('free').textContent = free;
-  document.getElementById('other').textContent = other;
-
-  document.getElementById('occupiedFoot').textContent =
-    `${all.length ? Math.round(occupied/all.length*100) : 0} % Auslastung`;
-
-  function regular(slot,trackIndex,slotIndex){
-
-    return `
-      <button
-        class="slot ${slot.status}${slot.fixed?' fixed-slot':''}"
-        ${slot.fixed?'disabled':''}
-        data-track="${trackIndex}"
-        data-slot="${slotIndex}"
-      >
-        <div class="slot-top">
-          <strong>${esc(slot.id)}</strong>
-          <span>${slot.fixed?'●':'↗'}</span>
-        </div>
-
-        <div class="slot-status">${labels[slot.status]}</div>
-
-        <div class="loco">
-          ${
-            slot.status==='occupied'
-              ? esc(slot.loco||'TFZ fehlt')
-              : slot.status==='free'
-                ? '—'
-                : slot.status==='reserved'
-                  ? 'Reserviert'
-                  : 'Gesperrt'
-          }
-        </div>
-
-        ${slot.note ? `<div class="slot-note">${esc(slot.note)}</div>` : ''}
-
-        <div class="slot-action">
-          ${slot.fixed?'Festes Element':'Klicken zum Bearbeiten'}
-        </div>
-      </button>
-    `;
-  }
-
-  function diagram(track,trackIndex){
-
+  const diagram=(track,ti)=>{
     let cells='';
-
-    if(track.name==='Gleis 39W' || track.name==='Gleis 40W'){
-
-      cells =
-        track.slots
-          .map((slot,index)=>regular(slot,trackIndex,index))
-          .join('') +
-        '<div class="infra stage">SCHIEBEBÜHNE</div>';
-
+    if(ti===0||ti===1){
+      cells=track.slots.map((s,si)=>regular(s,ti,si)).join('')+'<div class="infra">SCHIEBEBÜHNE</div>';
+    }else if(ti===2){
+      cells='<div class="infra">TANKSTELLE</div><div class="infra">WEICHE</div>'+
+        regular(track.slots[2],ti,2)+regular(track.slots[1],ti,1)+
+        '<div class="infra">SCHIEBEBÜHNE</div>'+regular(track.slots[0],ti,0);
+    }else{
+      cells='<div class="infra">PRELLBOCK</div>'+
+        regular(track.slots[4],ti,4)+regular(track.slots[3],ti,3)+regular(track.slots[2],ti,2)+
+        '<div class="infra">WEICHE</div>'+regular(track.slots[1],ti,1)+
+        '<div class="infra">HILFSZUG</div>';
     }
-
-    else if(track.name==='Gleis 41W'){
-
-      /*
-        EXAKT von links nach rechts:
-
-        Tankstelle
-        Weiche
-        41W2
-        41W1
-        Schiebebühne
-        41Mitte
-      */
-
-      cells =
-        '<div class="infra tank">TANKSTELLE</div>' +
-        '<div class="infra switch">WEICHE</div>' +
-        regular(track.slots[2],trackIndex,2) +
-        regular(track.slots[1],trackIndex,1) +
-        '<div class="infra stage">SCHIEBEBÜHNE</div>' +
-        regular(track.slots[0],trackIndex,0);
-    }
-
-    else if(track.name==='Gleis 42W'){
-
-      /*
-        EXAKT von links nach rechts:
-
-        Prellbock
-        42W3
-        42W2
-        42W1
-        Weiche
-        42Mitte
-        Hilfszug
-      */
-
-      cells =
-        '<div class="buffer-stop">' +
-          '<span class="buffer-symbol" aria-hidden="true"></span>' +
-          '<span>PRELLBOCK</span>' +
-        '</div>' +
-        regular(track.slots[4],trackIndex,4) +
-        regular(track.slots[3],trackIndex,3) +
-        regular(track.slots[2],trackIndex,2) +
-        '<div class="infra switch">WEICHE</div>' +
-        regular(track.slots[1],trackIndex,1) +
-        '<div class="hilfszug">HILFSZUG</div>';
-    }
-
-    const occupiedCount =
-      track.slots.filter(s=>s.status==='occupied'&&!s.fixed).length;
-
-    const countable =
-      track.slots.filter(s=>!s.fixed).length;
-
-    return `
-      <section class="track">
-
-        <div class="track-head">
-
-          <div class="track-name">
-            <span class="track-icon">≋</span>
-            <span>
-              ${esc(track.name)}
-              <span class="track-meta">
-                · ${esc(track.description)}
-              </span>
-            </span>
-          </div>
-
-          <div class="track-meta">
-            ${occupiedCount} / ${countable} Plätze belegt
-          </div>
-
-        </div>
-
-        <div class="slots">
-          <div class="track-diagram">
-            ${cells}
-          </div>
-        </div>
-
-      </section>
-    `;
-  }
-
-  document.getElementById('tracks').innerHTML =
-    tracks.map(diagram).join('');
-
-  document
-    .querySelectorAll('.slot:not(.fixed-slot)')
-    .forEach(button=>{
-      button.addEventListener('click',()=>{
-        openEditor(
-          Number(button.dataset.track),
-          Number(button.dataset.slot)
-        );
-      });
-    });
-}
-
-function syncLoco(){
-
-  document.getElementById('locoField').style.display =
-    document.getElementById('status').value==='occupied'
-      ? 'grid'
-      : 'none';
-}
-
-function formatLoco(){
-
-  const input=document.getElementById('locoInput');
-
-  const digits=input.value
-    .replace(/\D/g,'')
-    .slice(0,6);
-
-  input.value =
-    digits.length>3
-      ? digits.slice(0,3)+' '+digits.slice(3)
-      : digits;
-}
-
-function openEditor(trackIndex,slotIndex){
-
-  selected={
-    trackIndex,
-    slotIndex
+    const count=track.slots.filter(s=>s.status==='occupied'&&!s.fixed).length;
+    const total=track.slots.filter(s=>!s.fixed).length;
+    return `<section class="track">
+      <div class="track-head"><div class="track-name">${esc(track.name)} <span class="track-meta">· ${esc(track.description)}</span></div>
+      <div class="track-meta">${count} / ${total} Plätze belegt</div></div>
+      <div class="slots"><div class="track-diagram">${cells}</div></div>
+    </section>`;
   };
 
-  const slot=tracks[trackIndex].slots[slotIndex];
+  document.getElementById('tracks').innerHTML=tracks.map(diagram).join('');
+  document.querySelectorAll('.slot:not(:disabled)').forEach(button=>{
+    button.addEventListener('click',()=>openEditor(+button.dataset.track,+button.dataset.slot));
+  });
+}
 
-  document.getElementById('modalTitle').textContent =
-    'Abstellplatz bearbeiten';
-
-  document.getElementById('modalSub').textContent =
-    `${tracks[trackIndex].name} · ${slot.id}`;
-
+function openEditor(ti,si){
+  selected={ti,si};
+  const slot=tracks[ti].slots[si];
+  document.getElementById('modalTitle').textContent='Abstellplatz bearbeiten';
+  document.getElementById('modalSub').textContent=tracks[ti].name+' · '+slot.id;
   document.getElementById('placementField').style.display='none';
   document.getElementById('slotChoiceField').style.display='none';
   document.getElementById('specialTrackField').style.display='none';
-
   document.getElementById('status').value=slot.status;
   document.getElementById('locoInput').value=slot.loco||'';
   document.getElementById('noteInput').value=slot.note||'';
-
-  document.getElementById('clearBtn').style.display='block';
-
+  document.getElementById('clearBtn').style.display='inline-block';
   syncLoco();
-
   document.getElementById('backdrop').classList.add('open');
-
-  if(slot.status==='occupied'){
-    document.getElementById('locoInput').focus();
-  }
 }
 
 function openAdd(){
-
-  const choice=document.getElementById('slotChoice');
-
-  addChoices=[];
-
-  tracks.forEach((track,trackIndex)=>{
-    track.slots.forEach((slot,slotIndex)=>{
-      if(!slot.fixed && slot.status==='free'){
-        addChoices.push({
-          trackIndex,
-          slotIndex,
-          label:`${track.name} · ${slot.id}`
-        });
-      }
-    });
-  });
-
-  choice.innerHTML=addChoices
-    .map((item,index)=>
-      `<option value="${index}">
-        ${esc(item.label)}
-      </option>`
-    )
-    .join('');
-
+  const free=[];
+  tracks.forEach((track,ti)=>track.slots.forEach((slot,si)=>{
+    if(!slot.fixed&&slot.status==='free')free.push({ti,si,label:track.name+' · '+slot.id});
+  }));
+  window.addChoices=free;
+  document.getElementById('slotChoice').innerHTML=free.map((x,i)=>`<option value="${i}">${esc(x.label)}</option>`).join('');
   document.getElementById('modalTitle').textContent='Lok abstellen';
   document.getElementById('modalSub').textContent='Stellplatz auswählen';
-
   document.getElementById('placementField').style.display='grid';
   document.getElementById('slotChoiceField').style.display='grid';
   document.getElementById('specialTrackField').style.display='none';
-
   document.getElementById('placement').value='regular';
   document.getElementById('status').value='occupied';
   document.getElementById('locoInput').value='';
   document.getElementById('noteInput').value='';
   document.getElementById('specialTrackInput').value='';
-
   document.getElementById('clearBtn').style.display='none';
-
   syncLoco();
-
   document.getElementById('backdrop').classList.add('open');
-
-  document.getElementById('locoInput').focus();
 }
 
 function closeModal(){
@@ -1164,579 +331,369 @@ function closeModal(){
   selected=null;
 }
 
-function toast(message){
-
-  const element=document.getElementById('toast');
-
-  element.textContent=message;
-  element.classList.add('show');
-
-  setTimeout(()=>{
-    element.classList.remove('show');
-  },2400);
+function syncLoco(){
+  document.getElementById('locoField').style.display=
+    document.getElementById('status').value==='occupied'?'grid':'none';
 }
 
-async function saveRegularSlot(slot,status,loco,note){
+function formatLoco(){
+  const input=document.getElementById('locoInput');
+  const digits=input.value.replace(/\D/g,'').slice(0,6);
+  input.value=digits.length>3?digits.slice(0,3)+' '+digits.slice(3):digits;
+}
 
-  const result=await supabaseClient
-    .from('parking_slots')
-    .update({
-      status,
-      loco:status==='occupied'?loco:'',
-      note
-    })
-    .eq('id',slot.id);
-
-  if(result.error){
-    toast('Speichern fehlgeschlagen.');
+/* Historieneintrag in Supabase speichern */
+async function writeHistory(eventType,trackName,slotId,loco,note){
+  const {error}=await supabaseClient.from('booking_history').insert({
+    event_type:eventType,
+    track_name:trackName,
+    slot_id:slotId,
+    loco:loco||null,
+    usage:null,
+    note:note||null
+  });
+  if(error){
+    console.error('Historieneintrag konnte nicht gespeichert werden:',error);
+    toast('Achtung: Historie konnte nicht gespeichert werden.');
     return false;
   }
-
-  slot.status=status;
-  slot.loco=status==='occupied'?loco:'';
-  slot.note=note;
-
+  await loadBookingHistory();
   return true;
 }
 
-async function save(){
+/* Historie laden */
+async function loadBookingHistory(){
+  const list=document.getElementById('historyList');
+  const {data,error}=await supabaseClient
+    .from('booking_history')
+    .select('id,event_type,event_at,track_name,slot_id,loco,usage,note')
+    .order('event_at',{ascending:false})
+    .limit(100);
 
-  if(!supaReady){
-    toast('Noch nicht mit Supabase verbunden.');
+  if(error){
+    list.innerHTML='<div class="empty-history">Die Buchungshistorie konnte nicht geladen werden. Bitte Tabellenrechte und Verbindung prüfen.</div>';
+    console.error(error);
     return;
   }
+
+  historyRows=data||[];
+  renderHistory();
+}
+
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  if(!historyRows.length){
+    list.innerHTML='<div class="empty-history">Noch keine Ein- oder Ausbuchungen vorhanden.</div>';
+    return;
+  }
+
+  list.innerHTML=historyRows.map(row=>{
+    const isIn=row.event_type==='inbooking';
+    const date=row.event_at?new Date(row.event_at):null;
+    const time=date&&!isNaN(date)?date.toLocaleString('de-DE'):'Zeit unbekannt';
+    return `<div class="history-entry">
+      <div>
+        <div class="history-type ${isIn?'in':'out'}">${isIn?'↑ Einbuchung':'↓ Ausbuchung'}</div>
+        <div class="history-time">${esc(time)}</div>
+      </div>
+      <div class="history-details">
+        <strong>${esc(row.loco||'Keine TFZ-Nummer')}</strong>
+        · ${esc(row.track_name||'')} · Platz ${esc(row.slot_id||'')}
+        ${row.usage?`<div class="history-note">Verwendung: ${esc(row.usage)}</div>`:''}
+        ${row.note?`<div class="history-note">${esc(row.note)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* Sonderabstellungen */
+async function loadSpecialStorage(){
+  const {data,error}=await supabaseClient.from('special_storage').select('*').order('created_at',{ascending:true});
+  if(error){console.error(error);return;}
+  supaSpecial=data||[];
+  renderOtherStorage();
+}
+
+function renderOtherStorage(){
+  const list=document.getElementById('otherStorageList');
+  document.getElementById('otherStorageMeta').textContent=supaSpecial.length+' Abstellungen';
+  if(!supaSpecial.length){
+    list.innerHTML='<div class="empty-history">Noch keine Abstellungen außerhalb des Betriebswerks erfasst.</div>';
+    return;
+  }
+  list.innerHTML=supaSpecial.map(item=>`
+    <div class="history-entry">
+      <div><strong>${esc(item.loco||'')}</strong><div class="history-time">${esc(item.track||'')}</div></div>
+      <div class="history-details">
+        ${esc(item.note||'')}
+        <button class="danger" data-delete-special="${esc(item.id)}" style="float:right">Löschen</button>
+      </div>
+    </div>`).join('');
+
+  list.querySelectorAll('[data-delete-special]').forEach(button=>{
+    button.onclick=async()=>{
+      if(!confirm('Diese Sonderabstellung wirklich löschen?'))return;
+      const id=button.dataset.deleteSpecial;
+      const {error}=await supabaseClient.from('special_storage').delete().eq('id',id);
+      if(error){toast('Löschen fehlgeschlagen.');return;}
+      await loadSpecialStorage();
+      toast('Sonderabstellung gelöscht.');
+    };
+  });
+}
+
+/* Speichern: reguläre und Sonderabstellungen */
+document.getElementById('saveBtn').onclick=async()=>{
+  if(!supaReady){toast('Noch nicht mit Supabase verbunden.');return;}
 
   const status=document.getElementById('status').value;
-  const loco=document
-    .getElementById('locoInput')
-    .value
-    .replace(/\s/g,'');
+  const loco=document.getElementById('locoInput').value.replace(/\s/g,'');
+  const locoFormatted=loco.length===6?loco.slice(0,3)+' '+loco.slice(3):'';
+  const note=document.getElementById('noteInput').value.trim();
 
-  const note=document
-    .getElementById('noteInput')
-    .value
-    .trim();
-
-  if(status==='occupied' && !/^\d{6}$/.test(loco)){
-    document.getElementById('locoInput').focus();
+  if(status==='occupied'&&!/^\d{6}$/.test(loco)){
     toast('TFZ-Nummer muss exakt 6-stellig sein.');
+    document.getElementById('locoInput').focus();
     return;
   }
 
-  const placement=document.getElementById('placement').value;
-
+  /* Bestehenden Stellplatz bearbeiten */
   if(document.getElementById('placementField').style.display==='none'){
+    if(!selected)return;
+    const slot=tracks[selected.ti].slots[selected.si];
+    const oldStatus=slot.status;
+    const oldLoco=slot.loco;
+    const trackName=tracks[selected.ti].name;
 
-    if(!selected) return;
+    const {error}=await supabaseClient.from('parking_slots')
+      .update({status,loco:status==='occupied'?locoFormatted:'',note})
+      .eq('id',slot.id);
 
-    const slot=tracks[selected.trackIndex].slots[selected.slotIndex];
+    if(error){toast('Speichern fehlgeschlagen.');console.error(error);return;}
 
-    const success=await saveRegularSlot(
-      slot,
-      status,
-      document.getElementById('locoInput').value,
-      note
-    );
+    if(oldStatus!=='occupied'&&status==='occupied'){
+      await writeHistory('inbooking',trackName,slot.id,locoFormatted,note);
+    }else if(oldStatus==='occupied'&&status!=='occupied'){
+      await writeHistory('outbooking',trackName,slot.id,oldLoco, note);
+    }
 
-    if(!success) return;
-
+    slot.status=status;
+    slot.loco=status==='occupied'?locoFormatted:'';
+    slot.note=note;
     render();
     closeModal();
     toast('Abstellplatz aktualisiert.');
     return;
   }
 
-  if(placement==='special'){
+  /* Sonderabstellung */
+  if(document.getElementById('placement').value==='special'){
+    const track=document.getElementById('specialTrackInput').value.trim();
+    if(!track){toast('Bitte Gleis oder Abstellort eintragen.');return;}
 
-    const track=document
-      .getElementById('specialTrackInput')
-      .value
-      .trim();
+    const {data,error}=await supabaseClient.from('special_storage')
+      .insert({loco:locoFormatted,track,note}).select().single();
 
-    if(!track){
-      toast('Bitte Gleis oder Abstellort eintragen.');
-      return;
-    }
+    if(error){toast('Sonderabstellung konnte nicht gespeichert werden.');console.error(error);return;}
 
-    if(status!=='occupied'){
-      toast('Eine Sonderabstellung muss belegt sein.');
-      return;
-    }
-
-    const result=await supabaseClient
-      .from('special_storage')
-      .insert({
-        loco:document.getElementById('locoInput').value,
-        track,
-        note
-      })
-      .select()
-      .single();
-
-    if(result.error){
-      toast('Sonderabstellung konnte nicht gespeichert werden.');
-      return;
-    }
-
-    supaSpecial.push(result.data);
-
+    supaSpecial.push(data);
     renderOtherStorage();
     closeModal();
-
     toast('Sonderabstellung gespeichert.');
     return;
   }
 
-  if(!addChoices.length){
-    toast('Kein freier Stellplatz vorhanden.');
-    return;
-  }
+  /* Neue reguläre Einbuchung */
+  if(!window.addChoices?.length){toast('Kein freier Stellplatz vorhanden.');return;}
 
-  const selectedChoice=
-    addChoices[
-      Number(document.getElementById('slotChoice').value)
-    ];
+  const pick=window.addChoices[+document.getElementById('slotChoice').value];
+  if(!pick){toast('Bitte einen Stellplatz auswählen.');return;}
 
-  const slot=
-    tracks[selectedChoice.trackIndex]
-      .slots[selectedChoice.slotIndex];
+  const slot=tracks[pick.ti].slots[pick.si];
+  const trackName=tracks[pick.ti].name;
 
-  const success=await saveRegularSlot(
-    slot,
-    'occupied',
-    document.getElementById('locoInput').value,
-    note
-  );
-
-  if(!success) return;
-
-  render();
-  closeModal();
-
-  toast('Lok wurde abgestellt.');
-}
-
-async function clearSlot(){
-
-  if(!selected || !supaReady) return;
-
-  const slot=
-    tracks[selected.trackIndex]
-      .slots[selected.slotIndex];
-
-  const result=await supabaseClient
-    .from('parking_slots')
-    .update({
-      status:'free',
-      loco:'',
-      note:''
-    })
+  const {error}=await supabaseClient.from('parking_slots')
+    .update({status:'occupied',loco:locoFormatted,note})
     .eq('id',slot.id);
 
-  if(result.error){
-    toast('Freigeben fehlgeschlagen.');
-    return;
+  if(error){toast('Speichern fehlgeschlagen.');console.error(error);return;}
+
+  slot.status='occupied';
+  slot.loco=locoFormatted;
+  slot.note=note;
+
+  await writeHistory('inbooking',trackName,slot.id,locoFormatted,note);
+  render();
+  closeModal();
+  toast('Lok wurde abgestellt.');
+};
+
+/* Stellplatz freigeben */
+document.getElementById('clearBtn').onclick=async()=>{
+  if(!selected||!supaReady)return;
+
+  const slot=tracks[selected.ti].slots[selected.si];
+  const trackName=tracks[selected.ti].name;
+  const oldLoco=slot.loco;
+  const oldStatus=slot.status;
+
+  const {error}=await supabaseClient.from('parking_slots')
+    .update({status:'free',loco:'',note:''})
+    .eq('id',slot.id);
+
+  if(error){toast('Freigeben fehlgeschlagen.');console.error(error);return;}
+
+  if(oldStatus==='occupied'){
+    await writeHistory('outbooking',trackName,slot.id,oldLoco,slot.note);
   }
 
   slot.status='free';
   slot.loco='';
   slot.note='';
-
   render();
   closeModal();
-
   toast('Platz wurde freigegeben.');
-}
+};
 
-async function resetAll(){
+/* Belegung zurücksetzen */
+document.getElementById('resetBtn').onclick=async()=>{
+  if(!supaReady||!confirm('Alle regulären Stellplätze wirklich leeren?'))return;
 
-  if(
-    !supaReady ||
-    !confirm('Alle regulären Stellplätze wirklich leeren?')
-  ){
-    return;
+  const occupied=tracks.flatMap(track=>track.slots
+    .filter(slot=>!slot.fixed&&slot.status==='occupied')
+    .map(slot=>({trackName:track.name,slotId:slot.id,loco:slot.loco,note:slot.note})));
+
+  const {error}=await supabaseClient.from('parking_slots')
+    .update({status:'free',loco:'',note:''}).eq('fixed',false);
+
+  if(error){toast('Zurücksetzen fehlgeschlagen.');console.error(error);return;}
+
+  for(const item of occupied){
+    await writeHistory('outbooking',item.trackName,item.slotId,item.loco,item.note);
   }
 
-  const result=await supabaseClient
-    .from('parking_slots')
-    .update({
-      status:'free',
-      loco:'',
-      note:''
-    })
-    .eq('fixed',false);
-
-  if(result.error){
-    toast('Zurücksetzen fehlgeschlagen.');
-    return;
-  }
-
-  tracks.forEach(track=>{
-    track.slots.forEach(slot=>{
-      if(!slot.fixed){
-        slot.status='free';
-        slot.loco='';
-        slot.note='';
-      }
-    });
-  });
+  tracks.forEach(track=>track.slots.forEach(slot=>{
+    if(!slot.fixed){slot.status='free';slot.loco='';slot.note='';}
+  }));
 
   render();
-
   toast('Stellplätze zurückgesetzt.');
-}
+};
 
-async function deleteSpecial(id){
+/* CSV-Export */
+document.getElementById('exportBtn').onclick=()=>{
+  const rows=[
+    ['Gleis','Platz','Status','TFZ-Nummer','Bemerkung'],
+    ...tracks.flatMap(track=>track.slots.map(slot=>[
+      track.name,slot.id,labels[slot.status],slot.loco||'',slot.note||''
+    ])),
+    ...supaSpecial.map(item=>['Sondergleis',item.track,'Belegt',item.loco||'',item.note||''])
+  ];
 
-  const result=await supabaseClient
-    .from('special_storage')
-    .delete()
-    .eq('id',id);
+  const csv='\ufeff'+rows.map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='abstellkarte.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('CSV-Datei erstellt.');
+};
 
-  if(result.error){
-    toast('Löschen fehlgeschlagen.');
-    return;
-  }
+/* Bedienung */
+document.getElementById('addBtn').onclick=openAdd;
+document.getElementById('closeBtn').onclick=closeModal;
+document.getElementById('cancelBtn').onclick=closeModal;
+document.getElementById('status').addEventListener('change',syncLoco);
+document.getElementById('locoInput').addEventListener('input',formatLoco);
 
-  supaSpecial=supaSpecial.filter(
-    item=>String(item.id)!==String(id)
-  );
+document.getElementById('placement').addEventListener('change',()=>{
+  const special=document.getElementById('placement').value==='special';
+  document.getElementById('slotChoiceField').style.display=special?'none':'grid';
+  document.getElementById('specialTrackField').style.display=special?'grid':'none';
+});
 
-  renderOtherStorage();
+document.getElementById('backdrop').addEventListener('click',event=>{
+  if(event.target.id==='backdrop')closeModal();
+});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape')closeModal();
+});
 
-  toast('Sonderabstellung gelöscht.');
-}
+document.getElementById('otherStorageBtn').onclick=()=>{
+  document.getElementById('otherStorageSection').scrollIntoView({behavior:'smooth'});
+};
+document.getElementById('refreshHistoryBtn').onclick=loadBookingHistory;
 
-function renderOtherStorage(){
-
-  const list=document.getElementById('otherStorageList');
-
-  document.getElementById('otherStorageMeta').textContent =
-    `${supaSpecial.length} Abstellungen`;
-
-  if(!supaSpecial.length){
-
-    list.innerHTML=
-      '<div class="muted">Noch keine Abstellungen außerhalb des Betriebswerks erfasst.</div>';
-
-    return;
-  }
-
-  list.innerHTML=supaSpecial.map(item=>`
-    <div
-      style="
-        border:1px solid var(--border);
-        border-radius:10px;
-        padding:12px 14px;
-        background:var(--surface2);
-        display:flex;
-        justify-content:space-between;
-        gap:12px;
-        align-items:flex-start;
-      "
-    >
-
-      <div>
-        <div style="font-weight:800">
-          ${esc(item.loco)}
-        </div>
-
-        <div class="muted">
-          Gleis / Abstellort: ${esc(item.track)}
-        </div>
-
-        ${
-          item.note
-            ? `<div class="slot-note" style="margin-top:4px">
-                ${esc(item.note)}
-              </div>`
-            :''
-        }
-      </div>
-
-      <button
-        class="danger"
-        data-special-id="${item.id}"
-      >
-        Löschen
-      </button>
-
-    </div>
-  `).join('');
-
-  list
-    .querySelectorAll('[data-special-id]')
-    .forEach(button=>{
-      button.addEventListener('click',()=>{
-        deleteSpecial(button.dataset.specialId);
-      });
-    });
-}
-
-async function loadFromSupabase(){
-
+/* Initiales Laden und Live-Synchronisierung */
+async function supaLoad(){
   syncLabel.textContent='Verbinde mit Supabase …';
 
-  const result=await supabaseClient
-    .from('parking_slots')
-    .select('*')
-    .order('sort_order');
-
-  if(result.error){
-
+  const {data,error}=await supabaseClient.from('parking_slots').select('*').order('sort_order');
+  if(error){
     syncLabel.textContent='Supabase Fehler';
-
-    toast(
-      'Supabase-Tabelle parking_slots fehlt oder ist nicht freigegeben.'
-    );
-
+    toast('Supabase-Tabelle parking_slots fehlt oder ist nicht freigegeben.');
+    console.error(error);
     return;
   }
 
-  if(!result.data.length){
+  if(!data.length){
+    const seed=tracks.flatMap((track,ti)=>track.slots.map((slot,si)=>({
+      id:slot.id,
+      track_name:track.name,
+      status:slot.status,
+      loco:slot.loco||'',
+      note:slot.note||'',
+      fixed:!!slot.fixed,
+      sort_order:ti*100+si
+    })));
 
-    const seed=tracks.flatMap((track,trackIndex)=>
-      track.slots.map((slot,slotIndex)=>({
-        id:slot.id,
-        track_name:track.name,
-        status:slot.status,
-        loco:slot.loco||'',
-        note:slot.note||'',
-        fixed:!!slot.fixed,
-        sort_order:trackIndex*100+slotIndex
-      }))
-    );
-
-    const insertResult=await supabaseClient
-      .from('parking_slots')
-      .insert(seed);
-
-    if(insertResult.error){
-
+    const {error:insertError}=await supabaseClient.from('parking_slots').insert(seed);
+    if(insertError){
       syncLabel.textContent='Supabase Fehler';
-
       toast('Initialdaten konnten nicht angelegt werden.');
-
+      console.error(insertError);
       return;
     }
-
   }else{
-
-    result.data.forEach(row=>{
-
-      const slot=tracks
-        .flatMap(track=>track.slots)
-        .find(item=>item.id===row.id);
-
+    data.forEach(row=>{
+      const slot=tracks.flatMap(track=>track.slots).find(item=>item.id===row.id);
       if(slot){
-
         slot.status=row.status;
         slot.loco=row.loco||'';
         slot.note=row.note||'';
         slot.fixed=!!row.fixed;
-
       }
     });
   }
 
-  const specialResult=await supabaseClient
-    .from('special_storage')
-    .select('*')
-    .order('created_at',{ascending:true});
-
-  if(specialResult.error){
-
-    syncLabel.textContent='Supabase Fehler';
-
-    toast(
-      'Tabelle special_storage fehlt oder ist nicht freigegeben.'
-    );
-
-    return;
-  }
-
-  supaSpecial=specialResult.data||[];
+  await loadSpecialStorage();
+  await loadBookingHistory();
 
   supaReady=true;
-
   syncLabel.textContent='Live · Supabase synchronisiert';
   syncDot.style.background='#35a66b';
-
   render();
-  renderOtherStorage();
 }
 
-document
-  .getElementById('status')
-  .addEventListener('change',syncLoco);
-
-document
-  .getElementById('locoInput')
-  .addEventListener('input',formatLoco);
-
-document
-  .getElementById('placement')
-  .addEventListener('change',()=>{
-
-    const special=
-      document.getElementById('placement').value==='special';
-
-    document.getElementById('slotChoiceField').style.display=
-      special?'none':'grid';
-
-    document.getElementById('specialTrackField').style.display=
-      special?'grid':'none';
-
-    document.getElementById('status').value='occupied';
-
-    syncLoco();
-  });
-
-document
-  .getElementById('closeBtn')
-  .addEventListener('click',closeModal);
-
-document
-  .getElementById('cancelBtn')
-  .addEventListener('click',closeModal);
-
-document
-  .getElementById('saveBtn')
-  .addEventListener('click',save);
-
-document
-  .getElementById('clearBtn')
-  .addEventListener('click',clearSlot);
-
-document
-  .getElementById('addBtn')
-  .addEventListener('click',openAdd);
-
-document
-  .getElementById('resetBtn')
-  .addEventListener('click',resetAll);
-
-document
-  .getElementById('otherStorageBtn')
-  .addEventListener('click',()=>{
-    document
-      .getElementById('otherStorageList')
-      .scrollIntoView({
-        behavior:'smooth',
-        block:'start'
-      });
-  });
-
-document
-  .getElementById('backdrop')
-  .addEventListener('click',event=>{
-    if(event.target.id==='backdrop'){
-      closeModal();
-    }
-  });
-
-document.addEventListener('keydown',event=>{
-  if(event.key==='Escape'){
-    closeModal();
-  }
-});
-
-document
-  .getElementById('exportBtn')
-  .addEventListener('click',()=>{
-
-    const rows=[
-      ['Gleis','Platz','Status','TFZ-Nummer','Bemerkung'],
-
-      ...tracks.flatMap(track=>
-        track.slots.map(slot=>[
-          track.name,
-          slot.id,
-          labels[slot.status],
-          slot.loco||'',
-          slot.note||''
-        ])
-      ),
-
-      ...supaSpecial.map(item=>[
-        'Sondergleis',
-        item.track,
-        'Belegt',
-        item.loco||'',
-        item.note||''
-      ])
-    ];
-
-    const csv=
-      '\ufeff'+
-      rows
-        .map(row=>
-          row
-            .map(value=>`"${String(value).replace(/"/g,'""')}"`)
-            .join(';')
-        )
-        .join('\r\n');
-
-    const blob=new Blob(
-      [csv],
-      {type:'text/csv;charset=utf-8;'}
-    );
-
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement('a');
-
-    link.href=url;
-    link.download='abstellkarte.csv';
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    URL.revokeObjectURL(url);
-
-    setTimeout(()=>{
-      window.print();
-    },150);
-  });
-
 render();
-renderOtherStorage();
 
-loadFromSupabase().catch(error=>{
-
-  console.error(error);
-
+supaLoad().catch(error=>{
   syncLabel.textContent='Supabase Fehler';
-
   toast('Supabase-Verbindung fehlgeschlagen.');
+  console.error(error);
 });
 
-supabaseClient
-  .channel('abstellkarte-live')
-  .on(
-    'postgres_changes',
-    {
-      event:'*',
-      schema:'public',
-      table:'parking_slots'
-    },
-    ()=>{
-      loadFromSupabase();
-    }
-  )
-  .on(
-    'postgres_changes',
-    {
-      event:'*',
-      schema:'public',
-      table:'special_storage'
-    },
-    ()=>{
-      loadFromSupabase();
-    }
-  )
+supabaseClient.channel('abstellkarte-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'parking_slots'},async()=>{
+    await supaLoad();
+  })
+  .on('postgres_changes',{event:'*',schema:'public',table:'special_storage'},async()=>{
+    await loadSpecialStorage();
+  })
+  .on('postgres_changes',{event:'*',schema:'public',table:'booking_history'},async()=>{
+    await loadBookingHistory();
+  })
   .subscribe();
 </script>
-
 </body>
 </html>
