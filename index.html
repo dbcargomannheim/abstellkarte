@@ -218,7 +218,7 @@ const makeSlots=(prefix,count)=>Array.from({length:count},(_,i)=>({
 const initial=[
  {name:'Gleis 39W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('39W',9).reverse()},
  {name:'Gleis 40W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('40W',9).reverse()},
- {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',slots:[{id:'41Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('41W',2)]},
+ {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · 41Mitte',slots:[{id:'41Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('41W',2)]},
  {name:'Gleis 42W',description:'Prellbock · 42W3 · 42W2 · 42W1 · Weiche · 42Mitte · Hilfszug',slots:[{id:'Hilfszug',status:'occupied',loco:'',note:'Hilfszug · dauerhaft belegt',fixed:true},{id:'42Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('42W',3)]}
 ];
 
@@ -266,7 +266,7 @@ function render(){
     }else if(ti===2){
       cells='<div class="infra">TANKSTELLE</div><div class="infra">WEICHE</div>'+
         regular(track.slots[2],ti,2)+regular(track.slots[1],ti,1)+
-        '<div class="infra">SCHIEBEBÜHNE</div>'+regular(track.slots[0],ti,0);
+        regular(track.slots[0],ti,0)+'<div class="infra">Schiebebühne</div>';
     }else{
       cells='<div class="infra">PRELLBOCK</div>'+
         regular(track.slots[4],ti,4)+regular(track.slots[3],ti,3)+regular(track.slots[2],ti,2)+
@@ -432,12 +432,30 @@ function renderOtherStorage(){
 
   list.querySelectorAll('[data-delete-special]').forEach(button=>{
     button.onclick=async()=>{
-      if(!confirm('Diese Sonderabstellung wirklich löschen?'))return;
       const id=button.dataset.deleteSpecial;
+      const item=supaSpecial.find(entry=>String(entry.id)===String(id));
+      if(!item)return;
+      const reason=prompt('Bitte Ausbuchungsgrund für diese Sonderabstellung eingeben:','')?.trim()||'';
+      if(!reason){toast('Löschen abgebrochen: Bitte einen Ausbuchungsgrund angeben.');return;}
+      if(!confirm('Sonderabstellung wirklich ausbuchen?'))return;
       const {error}=await supabaseClient.from('special_storage').delete().eq('id',id);
-      if(error){toast('Löschen fehlgeschlagen.');return;}
-      await loadSpecialStorage();
-      toast('Sonderabstellung gelöscht.');
+      if(error){toast('Löschen fehlgeschlagen.');console.error(error);return;}
+      supaSpecial=supaSpecial.filter(entry=>String(entry.id)!==String(id));
+      renderOtherStorage();
+      const {error:historyError}=await supabaseClient.from('booking_history').insert({
+        event_type:'outbooking',
+        track_name:item.track||'Sondergleis',
+        loco:item.loco||null,
+        usage:reason,
+        note:item.note||null
+      });
+      if(historyError){
+        console.error('Ausbuchung wurde gelöscht, Chronik-Eintrag fehlgeschlagen:',historyError);
+        toast('Sonderabstellung gelöscht, aber Chronik-Eintrag fehlgeschlagen.');
+      }else{
+        await loadBookingHistory();
+        toast('Sonderabstellung ausgebucht und protokolliert.');
+      }
     };
   });
 }
