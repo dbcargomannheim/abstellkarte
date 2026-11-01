@@ -342,10 +342,20 @@ function formatLoco(){
   input.value=digits.length>3?digits.slice(0,3)+' '+digits.slice(3):digits;
 }
 
+/* Bei jeder Ausbuchung einen verpflichtenden Grund erfassen. */
+function askOutbookingReason(loco,trackName,slotId){
+  const value=prompt(`Warum wird Lok ${loco||'(ohne TFZ-Nummer)'} ausgebucht?\n${trackName} · Platz ${slotId}`,'') ;
+  if(value===null)return null;
+  const reason=value.trim();
+  if(!reason){toast('Ausbuchung abgebrochen: Bitte einen Grund eingeben.');return null;}
+  return reason;
+}
+
 /* Historieneintrag in Supabase speichern */
 async function writeHistory(eventType,trackName,slotId,loco,note){
   const {error}=await supabaseClient.from('booking_history').insert({
     event_type:eventType,
+    event_at:new Date().toISOString(),
     track_name:trackName,
     slot_id:slotId,
     loco:loco||null,
@@ -400,7 +410,7 @@ function renderHistory(){
         <strong>${esc(row.loco||'Keine TFZ-Nummer')}</strong>
         · ${esc(row.track_name||'')} · Platz ${esc(row.slot_id||'')}
         ${row.usage?`<div class="history-note">Verwendung: ${esc(row.usage)}</div>`:''}
-        ${row.note?`<div class="history-note">${esc(row.note)}</div>`:''}
+        ${row.note?`<div class="history-note">${isIn?'Bemerkung':'Ausbuchungsgrund'}: ${esc(row.note)}</div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -482,6 +492,11 @@ document.getElementById('saveBtn').onclick=async()=>{
     const oldStatus=slot.status;
     const oldLoco=slot.loco;
     const trackName=tracks[selected.ti].name;
+    let outReason='';
+    if(oldStatus==='occupied'&&status!=='occupied'){
+      outReason=askOutbookingReason(oldLoco,trackName,slot.id);
+      if(!outReason)return;
+    }
 
     const {error}=await supabaseClient.from('parking_slots')
       .update({status,loco:status==='occupied'?locoFormatted:'',note})
@@ -492,7 +507,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     if(oldStatus!=='occupied'&&status==='occupied'){
       await writeHistory('inbooking',trackName,slot.id,locoFormatted,note);
     }else if(oldStatus==='occupied'&&status!=='occupied'){
-      await writeHistory('outbooking',trackName,slot.id,oldLoco, note);
+      await writeHistory('outbooking',trackName,slot.id,oldLoco, outReason);
     }
 
     slot.status=status;
@@ -554,6 +569,11 @@ document.getElementById('clearBtn').onclick=async()=>{
   const trackName=tracks[selected.ti].name;
   const oldLoco=slot.loco;
   const oldStatus=slot.status;
+  let outReason='';
+  if(oldStatus==='occupied'){
+    outReason=askOutbookingReason(oldLoco,trackName,slot.id);
+    if(!outReason)return;
+  }
 
   const {error}=await supabaseClient.from('parking_slots')
     .update({status:'free',loco:'',note:''})
@@ -562,7 +582,7 @@ document.getElementById('clearBtn').onclick=async()=>{
   if(error){toast('Freigeben fehlgeschlagen.');console.error(error);return;}
 
   if(oldStatus==='occupied'){
-    await writeHistory('outbooking',trackName,slot.id,oldLoco,slot.note);
+    await writeHistory('outbooking',trackName,slot.id,oldLoco,outReason);
   }
 
   slot.status='free';
@@ -576,6 +596,8 @@ document.getElementById('clearBtn').onclick=async()=>{
 /* Belegung zurücksetzen */
 document.getElementById('resetBtn').onclick=async()=>{
   if(!supaReady||!confirm('Alle regulären Stellplätze wirklich leeren?'))return;
+  const resetReason=prompt('Bitte den Grund für das Ausbuchen aller belegten Loks eingeben:','')?.trim()||'';
+  if(!resetReason){toast('Zurücksetzen abgebrochen: Bitte einen Ausbuchungsgrund eingeben.');return;}
 
   const occupied=tracks.flatMap(track=>track.slots
     .filter(slot=>!slot.fixed&&slot.status==='occupied')
@@ -587,7 +609,7 @@ document.getElementById('resetBtn').onclick=async()=>{
   if(error){toast('Zurücksetzen fehlgeschlagen.');console.error(error);return;}
 
   for(const item of occupied){
-    await writeHistory('outbooking',item.trackName,item.slotId,item.loco,item.note);
+    await writeHistory('outbooking',item.trackName,item.slotId,item.loco,resetReason);
   }
 
   tracks.forEach(track=>track.slots.forEach(slot=>{
