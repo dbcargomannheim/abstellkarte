@@ -101,7 +101,7 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
 <header>
   <div class="brand">
     <div class="logo">↔</div>
-    <div><h1>Abstellkarte</h1><div class="subtitle">Betriebswerk · Digitale Gleisbelegung</div></div>
+    <div><h1>Digitale V-Tfz Abstellung MANNHEIM RBF</h1><div class="subtitle">Betriebswerk · Digitale Gleisbelegung</div></div>
   </div>
   <div class="header-right">
     <div class="pill"><span class="dot" id="syncDot"></span><span id="syncLabel">Verbinde mit Supabase …</span></div>
@@ -111,7 +111,7 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
 
 <main>
   <div class="topline">
-    <div><h2>Gleisübersicht</h2><div class="muted">Abstellplätze auswählen, Belegung bearbeiten und Status im Blick behalten.</div></div>
+    <div><h2>Gleisübersicht</h2></div>
     <div class="actions">
       <button id="exportBtn">↓ Belegung exportieren</button>
       <button id="otherStorageBtn">▣ Andere Gleise</button>
@@ -150,8 +150,6 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
     </div>
     <div id="historyList" class="history-list"><div class="empty-history">Buchungshistorie wird geladen …</div></div>
   </section>
-
-  <div class="footer-note"><strong>Hinweis:</strong> Die Belegungsdaten werden zentral in Supabase gespeichert und in Echtzeit zwischen den geöffneten Geräten synchronisiert.</div>
 
   <footer style="margin-top:28px;padding:20px 0 6px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">
     <strong style="color:var(--text)">Impressum</strong>
