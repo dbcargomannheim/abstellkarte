@@ -435,35 +435,48 @@ function renderOtherStorage(){
       </div>
     </div>`).join('');
 
-  list.querySelectorAll('[data-delete-special]').forEach(button=>{
-    button.onclick=async()=>{
-      const id=button.dataset.deleteSpecial;
-      const item=supaSpecial.find(entry=>String(entry.id)===String(id));
-      if(!item)return;
-      const reason=prompt('Bitte Ausbuchungsgrund für diese Sonderabstellung eingeben:','')?.trim()||'';
-      if(!reason){toast('Löschen abgebrochen: Bitte einen Ausbuchungsgrund angeben.');return;}
-      if(!confirm('Sonderabstellung wirklich ausbuchen?'))return;
-      const {error}=await supabaseClient.from('special_storage').delete().eq('id',id);
-      if(error){toast('Löschen fehlgeschlagen.');console.error(error);return;}
-      supaSpecial=supaSpecial.filter(entry=>String(entry.id)!==String(id));
-      renderOtherStorage();
-      const {error:historyError}=await supabaseClient.from('parking_history').insert({
-        event_type:'outbooking',
-        track_name:item.track||'Sondergleis',
-        slot_id:'Sonderabstellung '+String(item.id),
-        loco:item.loco||null,
-        reason:reason
-      });
-      if(historyError){
-        console.error('Ausbuchung wurde gelöscht, Chronik-Eintrag fehlgeschlagen:',historyError);
-        toast('Sonderabstellung gelöscht, aber Chronik-Eintrag fehlgeschlagen.');
-      }else{
-        await loadBookingHistory();
-        toast('Sonderabstellung ausgebucht und protokolliert.');
-      }
-    };
-  });
-}
+list.querySelectorAll('[data-supa-special]').forEach(b => b.onclick = async () => {
+
+  // Daten der Sonderabstellung merken
+  const item = supaSpecial.find(
+    x => String(x.id) === String(b.dataset.supaSpecial)
+  );
+
+  if (!item) return;
+
+  // Sonderabstellung löschen
+  const r = await supabaseClient
+    .from('special_storage')
+    .delete()
+    .eq('id', b.dataset.supaSpecial);
+
+  if (r.error) {
+    toast('Löschen fehlgeschlagen.');
+    return;
+  }
+
+  // Aus der Anzeige entfernen
+  supaSpecial = supaSpecial.filter(
+    x => String(x.id) !== String(b.dataset.supaSpecial)
+  );
+
+  renderOtherStorage();
+
+  // Ausbuchung in die Chronik schreiben
+  const historyResult = await supabaseClient
+    .from('parking_history')
+    .insert({
+      event_type: 'outbooking',
+      track_name: item.track,
+      slot_id: 'Sonderabstellung ' + item.id,
+      loco: item.loco || '',
+      reason: item.note || 'Sonderabstellung ausgebucht'
+    });
+
+  toast(historyResult.error
+    ? 'Ausbuchung erfolgt, aber Chronik-Eintrag fehlgeschlagen.'
+    : 'Sonderabstellung ausgebucht und in Chronik erfasst.');
+});
 
 /* Speichern: reguläre und Sonderabstellungen */
 document.getElementById('saveBtn').onclick=async()=>{
