@@ -522,13 +522,32 @@ document.getElementById('saveBtn').onclick=async()=>{
     const {data,error}=await supabaseClient.from('special_storage')
       .insert({loco:locoFormatted,track,note}).select().single();
 
-    if(error){toast('Sonderabstellung konnte nicht gespeichert werden.');console.error(error);return;}
+   if(r.error){
+  toast('Sonderabstellung konnte nicht gespeichert werden.');
+  return;
+}
 
-    supaSpecial.push(data);
-    renderOtherStorage();
-    closeModal();
-    toast('Sonderabstellung gespeichert.');
-    return;
+supaSpecial.push(r.data);
+
+// Eintrag in die Chronik schreiben
+const historyResult = await supabaseClient
+  .from('parking_history')
+  .insert({
+    event_type: 'inbooking',
+    track_name: r.data.track,
+    slot_id: 'Sonderabstellung ' + r.data.id,
+    loco: r.data.loco || '',
+    reason: r.data.note || 'Sonderabstellung'
+  });
+
+renderOtherStorage();
+close();
+
+toast(historyResult.error
+  ? 'Sonderabstellung gespeichert, aber Chronik-Eintrag fehlgeschlagen.'
+  : 'Sonderabstellung gespeichert und in Chronik erfasst.');
+
+return;
   }
 
   /* Neue reguläre Einbuchung */
