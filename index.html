@@ -218,7 +218,7 @@ const makeSlots=(prefix,count)=>Array.from({length:count},(_,i)=>({
 const initial=[
  {name:'Gleis 39W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('39W',9).reverse()},
  {name:'Gleis 40W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('40W',9).reverse()},
- {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',slots:[{id:'41Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('41W',2)]},
+ {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',slots:[...makeSlots('41W',2),{id:'41Mitte',status:'free',loco:'',note:'',fixed:false}]},
  {name:'Gleis 42W',description:'Prellbock · 42W3 · 42W2 · 42W1 · Weiche · 42Mitte · Hilfszug',slots:[{id:'Hilfszug',status:'occupied',loco:'',note:'Hilfszug · dauerhaft belegt',fixed:true},{id:'42Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('42W',3)]}
 ];
 
@@ -265,8 +265,8 @@ function render(){
       cells=track.slots.map((s,si)=>regular(s,ti,si)).join('')+'<div class="infra">SCHIEBEBÜHNE</div>';
     }else if(ti===2){
       cells='<div class="infra">TANKSTELLE</div><div class="infra">WEICHE</div>'+
-        regular(track.slots[2],ti,2)+regular(track.slots[1],ti,1)+
-        '<div class="infra">SCHIEBEBÜHNE</div>'+regular(track.slots[0],ti,0);
+        regular(track.slots[1],ti,1)+regular(track.slots[0],ti,0)+
+        '<div class="infra">Schiebebühne</div>'+regular(track.slots[2],ti,2);
     }else{
       cells='<div class="infra">PRELLBOCK</div>'+
         regular(track.slots[4],ti,4)+regular(track.slots[3],ti,3)+regular(track.slots[2],ti,2)+
@@ -342,26 +342,27 @@ function formatLoco(){
   input.value=digits.length>3?digits.slice(0,3)+' '+digits.slice(3):digits;
 }
 
+/* Bei jeder Ausbuchung einen verpflichtenden Grund erfassen. */
+function askOutbookingReason(loco,trackName,slotId){
+  const value=prompt(`Warum wird Lok ${loco||'(ohne TFZ-Nummer)'} ausgebucht?\n${trackName} · Platz ${slotId}`,'') ;
+  if(value===null)return null;
+  const reason=value.trim();
+  if(!reason){toast('Ausbuchung abgebrochen: Bitte einen Grund eingeben.');return null;}
+  return reason;
+}
+
 /* Historieneintrag in Supabase speichern */
 async function writeHistory(eventType,trackName,slotId,loco,note){
-  const entry = {
+  const {error}=await supabaseClient.from('parking_history').insert({
     event_type:eventType,
-    event_at:new Date().toISOString(),
     track_name:trackName,
-    slot_id:slotId,
+    slot_id:String(slotId),
     loco:loco||null,
-    usage:null,
-    note:note||null
-  };
-  const {data,error}=await supabaseClient
-    .from('booking_history')
-    .insert(entry)
-    .select('id,event_type,event_at,track_name,slot_id,loco,usage,note')
-    .single();
-
+    reason:note|| (eventType==='inbooking'?'Einbuchung':'Ausbuchung')
+  });
   if(error){
-    console.error('Historieneintrag konnte nicht gespeichert werden:',error,entry);
-    toast('Achtung: Ausbuchung gespeichert, aber Historieneintrag fehlgeschlagen. Details in der Browser-Konsole.');
+    console.error('Historieneintrag konnte nicht gespeichert werden:',error);
+    toast('Achtung: Historie konnte nicht gespeichert werden.');
     return false;
   }
   await loadBookingHistory();
@@ -372,9 +373,9 @@ async function writeHistory(eventType,trackName,slotId,loco,note){
 async function loadBookingHistory(){
   const list=document.getElementById('historyList');
   const {data,error}=await supabaseClient
-    .from('booking_history')
-    .select('id,event_type,event_at,track_name,slot_id,loco,usage,note')
-    .order('event_at',{ascending:false})
+    .from('parking_history')
+    .select('id,event_type,created_at,track_name,slot_id,loco,reason')
+    .order('created_at',{ascending:false})
     .limit(100);
 
   if(error){
@@ -396,7 +397,7 @@ function renderHistory(){
 
   list.innerHTML=historyRows.map(row=>{
     const isIn=row.event_type==='inbooking';
-    const date=row.event_at?new Date(row.event_at):null;
+    const date=row.created_at?new Date(row.created_at):null;
     const time=date&&!isNaN(date)?date.toLocaleString('de-DE'):'Zeit unbekannt';
     return `<div class="history-entry">
       <div>
@@ -406,8 +407,7 @@ function renderHistory(){
       <div class="history-details">
         <strong>${esc(row.loco||'Keine TFZ-Nummer')}</strong>
         · ${esc(row.track_name||'')} · Platz ${esc(row.slot_id||'')}
-        ${row.usage?`<div class="history-note">Verwendung: ${esc(row.usage)}</div>`:''}
-        ${row.note?`<div class="history-note">${esc(row.note)}</div>`:''}
+        ${row.reason?`<div class="history-note">${isIn?'Hinweis':'Ausbuchungsgrund'}: ${esc(row.reason)}</div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -439,12 +439,30 @@ function renderOtherStorage(){
 
   list.querySelectorAll('[data-delete-special]').forEach(button=>{
     button.onclick=async()=>{
-      if(!confirm('Diese Sonderabstellung wirklich löschen?'))return;
       const id=button.dataset.deleteSpecial;
+      const item=supaSpecial.find(entry=>String(entry.id)===String(id));
+      if(!item)return;
+      const reason=prompt('Bitte Ausbuchungsgrund für diese Sonderabstellung eingeben:','')?.trim()||'';
+      if(!reason){toast('Löschen abgebrochen: Bitte einen Ausbuchungsgrund angeben.');return;}
+      if(!confirm('Sonderabstellung wirklich ausbuchen?'))return;
       const {error}=await supabaseClient.from('special_storage').delete().eq('id',id);
-      if(error){toast('Löschen fehlgeschlagen.');return;}
-      await loadSpecialStorage();
-      toast('Sonderabstellung gelöscht.');
+      if(error){toast('Löschen fehlgeschlagen.');console.error(error);return;}
+      supaSpecial=supaSpecial.filter(entry=>String(entry.id)!==String(id));
+      renderOtherStorage();
+      const {error:historyError}=await supabaseClient.from('parking_history').insert({
+        event_type:'outbooking',
+        track_name:item.track||'Sondergleis',
+        slot_id:'Sonderabstellung '+String(item.id),
+        loco:item.loco||null,
+        reason:reason
+      });
+      if(historyError){
+        console.error('Ausbuchung wurde gelöscht, Chronik-Eintrag fehlgeschlagen:',historyError);
+        toast('Sonderabstellung gelöscht, aber Chronik-Eintrag fehlgeschlagen.');
+      }else{
+        await loadBookingHistory();
+        toast('Sonderabstellung ausgebucht und protokolliert.');
+      }
     };
   });
 }
@@ -471,6 +489,11 @@ document.getElementById('saveBtn').onclick=async()=>{
     const oldStatus=slot.status;
     const oldLoco=slot.loco;
     const trackName=tracks[selected.ti].name;
+    let outReason='';
+    if(oldStatus==='occupied'&&status!=='occupied'){
+      outReason=askOutbookingReason(oldLoco,trackName,slot.id);
+      if(!outReason)return;
+    }
 
     const {error}=await supabaseClient.from('parking_slots')
       .update({status,loco:status==='occupied'?locoFormatted:'',note})
@@ -481,7 +504,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     if(oldStatus!=='occupied'&&status==='occupied'){
       await writeHistory('inbooking',trackName,slot.id,locoFormatted,note);
     }else if(oldStatus==='occupied'&&status!=='occupied'){
-      await writeHistory('outbooking',trackName,slot.id,oldLoco, note);
+      await writeHistory('outbooking',trackName,slot.id,oldLoco, outReason);
     }
 
     slot.status=status;
@@ -543,6 +566,11 @@ document.getElementById('clearBtn').onclick=async()=>{
   const trackName=tracks[selected.ti].name;
   const oldLoco=slot.loco;
   const oldStatus=slot.status;
+  let outReason='';
+  if(oldStatus==='occupied'){
+    outReason=askOutbookingReason(oldLoco,trackName,slot.id);
+    if(!outReason)return;
+  }
 
   const {error}=await supabaseClient.from('parking_slots')
     .update({status:'free',loco:'',note:''})
@@ -551,16 +579,7 @@ document.getElementById('clearBtn').onclick=async()=>{
   if(error){toast('Freigeben fehlgeschlagen.');console.error(error);return;}
 
   if(oldStatus==='occupied'){
-    const historySaved = await writeHistory(
-      'outbooking',
-      trackName,
-      slot.id,
-      oldLoco,
-      slot.note
-    );
-    if(!historySaved){
-      toast('Platz wurde freigegeben, aber der Chronikeintrag ist fehlgeschlagen.');
-    }
+    await writeHistory('outbooking',trackName,slot.id,oldLoco,outReason);
   }
 
   slot.status='free';
@@ -574,6 +593,8 @@ document.getElementById('clearBtn').onclick=async()=>{
 /* Belegung zurücksetzen */
 document.getElementById('resetBtn').onclick=async()=>{
   if(!supaReady||!confirm('Alle regulären Stellplätze wirklich leeren?'))return;
+  const resetReason=prompt('Bitte den Grund für das Ausbuchen aller belegten Loks eingeben:','')?.trim()||'';
+  if(!resetReason){toast('Zurücksetzen abgebrochen: Bitte einen Ausbuchungsgrund eingeben.');return;}
 
   const occupied=tracks.flatMap(track=>track.slots
     .filter(slot=>!slot.fixed&&slot.status==='occupied')
@@ -585,7 +606,7 @@ document.getElementById('resetBtn').onclick=async()=>{
   if(error){toast('Zurücksetzen fehlgeschlagen.');console.error(error);return;}
 
   for(const item of occupied){
-    await writeHistory('outbooking',item.trackName,item.slotId,item.loco,item.note);
+    await writeHistory('outbooking',item.trackName,item.slotId,item.loco,resetReason);
   }
 
   tracks.forEach(track=>track.slots.forEach(slot=>{
@@ -706,7 +727,7 @@ supabaseClient.channel('abstellkarte-live')
   .on('postgres_changes',{event:'*',schema:'public',table:'special_storage'},async()=>{
     await loadSpecialStorage();
   })
-  .on('postgres_changes',{event:'*',schema:'public',table:'booking_history'},async()=>{
+  .on('postgres_changes',{event:'*',schema:'public',table:'parking_history'},async()=>{
     await loadBookingHistory();
   })
   .subscribe();
