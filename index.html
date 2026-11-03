@@ -426,6 +426,7 @@ function renderOtherStorage(){
     list.innerHTML='<div class="empty-history">Noch keine Abstellungen außerhalb des Betriebswerks erfasst.</div>';
     return;
   }
+
   list.innerHTML=supaSpecial.map(item=>`
     <div class="history-entry">
       <div><strong>${esc(item.loco||'')}</strong><div class="history-time">${esc(item.track||'')}</div></div>
@@ -435,48 +436,46 @@ function renderOtherStorage(){
       </div>
     </div>`).join('');
 
-list.querySelectorAll('[data-supa-special]').forEach(b => b.onclick = async () => {
+  list.querySelectorAll('[data-delete-special]').forEach(button=>{
+    button.onclick=async()=>{
+      const item=supaSpecial.find(x=>String(x.id)===String(button.dataset.deleteSpecial));
+      if(!item)return;
 
-  // Daten der Sonderabstellung merken
-  const item = supaSpecial.find(
-    x => String(x.id) === String(b.dataset.supaSpecial)
-  );
+      const reason=prompt('Bitte Ausbuchungsgrund für diese Sonderabstellung eingeben:',item.note||'')?.trim()||'';
+      if(!reason){toast('Ausbuchung abgebrochen: Bitte einen Grund eingeben.');return;}
+      if(!confirm('Sonderabstellung wirklich ausbuchen?'))return;
 
-  if (!item) return;
+      const {error}=await supabaseClient
+        .from('special_storage')
+        .delete()
+        .eq('id',item.id);
 
-  // Sonderabstellung löschen
-  const r = await supabaseClient
-    .from('special_storage')
-    .delete()
-    .eq('id', b.dataset.supaSpecial);
+      if(error){
+        console.error(error);
+        toast('Löschen fehlgeschlagen.');
+        return;
+      }
 
-  if (r.error) {
-    toast('Löschen fehlgeschlagen.');
-    return;
-  }
+      supaSpecial=supaSpecial.filter(x=>String(x.id)!==String(item.id));
+      renderOtherStorage();
 
-  // Aus der Anzeige entfernen
-  supaSpecial = supaSpecial.filter(
-    x => String(x.id) !== String(b.dataset.supaSpecial)
-  );
+      const historyResult=await supabaseClient.from('parking_history').insert({
+        event_type:'outbooking',
+        track_name:item.track,
+        slot_id:'Sonderabstellung '+item.id,
+        loco:item.loco||'',
+        reason
+      });
 
-  renderOtherStorage();
-
-  // Ausbuchung in die Chronik schreiben
-  const historyResult = await supabaseClient
-    .from('parking_history')
-    .insert({
-      event_type: 'outbooking',
-      track_name: item.track,
-      slot_id: 'Sonderabstellung ' + item.id,
-      loco: item.loco || '',
-      reason: item.note || 'Sonderabstellung ausgebucht'
-    });
-
-  toast(historyResult.error
-    ? 'Ausbuchung erfolgt, aber Chronik-Eintrag fehlgeschlagen.'
-    : 'Sonderabstellung ausgebucht und in Chronik erfasst.');
-});
+      if(historyResult.error){
+        console.error(historyResult.error);
+        toast('Sonderabstellung gelöscht, aber Chronik-Eintrag fehlgeschlagen.');
+      }else{
+        toast('Sonderabstellung ausgebucht und in Chronik erfasst.');
+      }
+    };
+  });
+}
 
 /* Speichern: reguläre und Sonderabstellungen */
 document.getElementById('saveBtn').onclick=async()=>{
@@ -535,32 +534,31 @@ document.getElementById('saveBtn').onclick=async()=>{
     const {data,error}=await supabaseClient.from('special_storage')
       .insert({loco:locoFormatted,track,note}).select().single();
 
-   if(r.error){
-  toast('Sonderabstellung konnte nicht gespeichert werden.');
-  return;
-}
+    if(error){
+      console.error(error);
+      toast('Sonderabstellung konnte nicht gespeichert werden.');
+      return;
+    }
 
-supaSpecial.push(r.data);
+    supaSpecial.push(data);
 
-// Eintrag in die Chronik schreiben
-const historyResult = await supabaseClient
-  .from('parking_history')
-  .insert({
-    event_type: 'inbooking',
-    track_name: r.data.track,
-    slot_id: 'Sonderabstellung ' + r.data.id,
-    loco: r.data.loco || '',
-    reason: r.data.note || 'Sonderabstellung'
-  });
+    const historyResult=await supabaseClient.from('parking_history').insert({
+      event_type:'inbooking',
+      track_name:data.track,
+      slot_id:'Sonderabstellung '+data.id,
+      loco:data.loco||'',
+      reason:data.note||'Sonderabstellung'
+    });
 
-renderOtherStorage();
-close();
+    renderOtherStorage();
+    closeModal();
 
-toast(historyResult.error
-  ? 'Sonderabstellung gespeichert, aber Chronik-Eintrag fehlgeschlagen.'
-  : 'Sonderabstellung gespeichert und in Chronik erfasst.');
+    toast(historyResult.error
+      ? 'Sonderabstellung gespeichert, aber Chronik-Eintrag fehlgeschlagen.'
+      : 'Sonderabstellung gespeichert und in Chronik erfasst.');
 
-return;
+    if(historyResult.error)console.error(historyResult.error);
+    return;
   }
 
   /* Neue reguläre Einbuchung */
