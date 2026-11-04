@@ -7,22 +7,40 @@
 <title>Abstellkarte V-Tfz MANNHEIM RBF · Betriebswerk</title>
 <style>
 :root {
-  color-scheme:light dark;
-  --bg:light-dark(#f3f6f8,#10171e);
-  --surface:light-dark(#fff,#1a242e);
-  --surface2:light-dark(#f7f9fb,#202d38);
-  --text:light-dark(#182532,#edf3f7);
-  --muted:light-dark(#637384,#a9b7c4);
-  --border:light-dark(#dce4ea,#344451);
-  --accent:light-dark(#1769aa,#70b9f4);
-  --green:light-dark(#d9f3e4,#173c2b);
-  --greenText:light-dark(#17643b,#9ae0b7);
-  --blue:light-dark(#dceeff,#193d5b);
-  --blueText:light-dark(#1c6097,#a8d7ff);
-  --yellow:light-dark(#fff0c9,#4b3a16);
-  --yellowText:light-dark(#875c00,#ffda7a);
-  --red:light-dark(#ffe0df,#4b2426);
-  --redText:light-dark(#a52d2a,#ffaaa6);
+  color-scheme:light;
+  --bg:#f3f6f8;
+  --surface:#fff;
+  --surface2:#f7f9fb;
+  --text:#182532;
+  --muted:#637384;
+  --border:#dce4ea;
+  --accent:#1769aa;
+  --green:#d9f3e4;
+  --greenText:#17643b;
+  --blue:#dceeff;
+  --blueText:#1c6097;
+  --yellow:#fff0c9;
+  --yellowText:#875c00;
+  --red:#ffe0df;
+  --redText:#a52d2a;
+}
+:root[data-theme="dark"] {
+  color-scheme:dark;
+  --bg:#10171e;
+  --surface:#1a242e;
+  --surface2:#202d38;
+  --text:#edf3f7;
+  --muted:#a9b7c4;
+  --border:#344451;
+  --accent:#70b9f4;
+  --green:#173c2b;
+  --greenText:#9ae0b7;
+  --blue:#193d5b;
+  --blueText:#a8d7ff;
+  --yellow:#4b3a16;
+  --yellowText:#ffda7a;
+  --red:#4b2426;
+  --redText:#ffaaa6;
 }
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;max-width:100%;overflow-x:hidden}
@@ -105,6 +123,7 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
   </div>
   <div class="header-right">
     <div class="pill"><span class="dot" id="syncDot"></span><span id="syncLabel">Verbinde mit Supabase …</span></div>
+    <button id="themeToggle" type="button" aria-label="Nachtmodus einschalten">🌙 Nachtmodus</button>
     <button id="resetBtn">Belegung zurücksetzen</button>
   </div>
 </header>
@@ -662,6 +681,16 @@ document.getElementById('exportBtn').onclick=()=>{
   a.click();
   URL.revokeObjectURL(a.href);
   toast('CSV-Datei erstellt.');
+};
+
+/* Tag-/Nachtmodus: startet bei jedem Seitenaufruf immer im hellen Tagmodus. */
+const themeToggle=document.getElementById('themeToggle');
+document.documentElement.dataset.theme='light';
+themeToggle.onclick=()=>{
+  const dark=document.documentElement.dataset.theme!=='dark';
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  themeToggle.textContent=dark?'☀️ Tagmodus':'🌙 Nachtmodus';
+  themeToggle.setAttribute('aria-label',dark?'Tagmodus einschalten':'Nachtmodus einschalten');
 };
 
 /* Bedienung */
