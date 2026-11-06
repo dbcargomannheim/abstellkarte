@@ -357,8 +357,8 @@ function closeModal(){
 }
 
 function syncLoco(){
-  document.getElementById('locoField').style.display=
-    document.getElementById('status').value==='occupied'?'grid':'none';
+  /* TFZ-Nummer bleibt bei jedem Status und jeder Abstellart sichtbar. */
+  document.getElementById('locoField').style.display='grid';
 }
 
 function formatLoco(){
@@ -517,7 +517,7 @@ document.getElementById('saveBtn').onclick=async()=>{
   const locoFormatted=loco.length===6?loco.slice(0,3)+' '+loco.slice(3):'';
   const note=document.getElementById('noteInput').value.trim();
 
-  if(status==='occupied'&&!/^\d{6}$/.test(loco)){
+  if((status==='occupied' || loco.length>0) && !/^\d{6}$/.test(loco)){
     toast('TFZ-Nummer muss exakt 6-stellig sein.');
     document.getElementById('locoInput').focus();
     return;
@@ -537,7 +537,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     }
 
     const {error}=await supabaseClient.from('parking_slots')
-      .update({status,loco:status==='occupied'?locoFormatted:'',note})
+      .update({status,loco:locoFormatted,note})
       .eq('id',slot.id);
 
     if(error){toast('Speichern fehlgeschlagen.');console.error(error);return;}
@@ -549,7 +549,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     }
 
     slot.status=status;
-    slot.loco=status==='occupied'?locoFormatted:'';
+    slot.loco=locoFormatted;
     slot.note=note;
     render();
     closeModal();
@@ -563,7 +563,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     if(!track){toast('Bitte Gleis oder Abstellort eintragen.');return;}
 
     const {data,error}=await supabaseClient.from('special_storage')
-      .insert({status,loco:status==='occupied'?locoFormatted:'',track,note}).select().single();
+      .insert({status,loco:locoFormatted,track,note}).select().single();
 
     if(error){
       console.error(error);
