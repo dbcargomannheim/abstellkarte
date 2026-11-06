@@ -100,6 +100,7 @@ button.danger{color:var(--redText)}
 .special-entry .history-details{font-size:13px;overflow-wrap:anywhere}
 .urgent-flag{position:absolute;top:0;right:0;width:0;height:0;border-top:32px solid #d71920;border-left:32px solid transparent;z-index:2;pointer-events:none}
 .urgent-flag::after{content:"!";position:absolute;top:-30px;right:3px;color:#fff;font-size:13px;font-weight:900;transform:rotate(45deg)}
+.special-entry button{margin-left:6px;padding:6px 9px;font-size:11px}
 .special-entry .special-status{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
 .history-type{font-size:11px;font-weight:800;text-transform:uppercase}
 .history-type.in{color:var(--greenText)}
@@ -240,6 +241,7 @@ const syncDot=document.getElementById('syncDot');
 let supaReady=false;
 let supaSpecial=[];
 let selected=null;
+let selectedSpecialId=null;
 let historyRows=[];
 
 const makeSlots=(prefix,count)=>Array.from({length:count},(_,i)=>({
@@ -321,6 +323,7 @@ function render(){
 }
 
 function openEditor(ti,si){
+  selectedSpecialId=null;
   selected={ti,si};
   const slot=tracks[ti].slots[si];
   document.getElementById('modalTitle').textContent='Abstellplatz bearbeiten';
@@ -337,7 +340,30 @@ function openEditor(ti,si){
   document.getElementById('backdrop').classList.add('open');
 }
 
+
+function openSpecialEditor(id){
+  const item=supaSpecial.find(entry=>String(entry.id)===String(id));
+  if(!item)return;
+  selected=null;
+  selectedSpecialId=item.id;
+  document.getElementById('modalTitle').textContent='Sonderabstellung bearbeiten';
+  document.getElementById('modalSub').textContent='Sondergleis / Sonderabstellplatz';
+  document.getElementById('placementField').style.display='none';
+  document.getElementById('slotChoiceField').style.display='none';
+  document.getElementById('specialTrackField').style.display='grid';
+  document.getElementById('specialTrackInput').value=item.track||'';
+  document.getElementById('status').value=item.status||'occupied';
+  document.getElementById('locoInput').value=item.loco||'';
+  document.getElementById('noteInput').value=item.note||'';
+  document.getElementById('urgentInput').checked=!!item.urgent;
+  document.getElementById('clearBtn').style.display='none';
+  syncLoco();
+  document.getElementById('backdrop').classList.add('open');
+}
+
 function openAdd(){
+  selected=null;
+  selectedSpecialId=null;
   const free=[];
   tracks.forEach((track,ti)=>track.slots.forEach((slot,si)=>{
     if(!slot.fixed&&slot.status==='free')free.push({ti,si,label:track.name+' · '+slot.id});
@@ -363,6 +389,7 @@ function openAdd(){
 function closeModal(){
   document.getElementById('backdrop').classList.remove('open');
   selected=null;
+  selectedSpecialId=null;
 }
 
 function syncLoco(){
@@ -469,9 +496,14 @@ function renderOtherStorage(){
       <div><strong>${esc(item.loco||'TFZ fehlt')}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">${labels[item.status]||'Belegt'}</div></div>
       <div class="history-details">
         ${esc(item.note||'')}
+        <button type="button" data-edit-special="${esc(item.id)}">Bearbeiten</button>
         <button class="danger" data-delete-special="${esc(item.id)}">Löschen</button>
       </div>
     </div>`).join('');
+
+  list.querySelectorAll('[data-edit-special]').forEach(button=>{
+    button.onclick=()=>openSpecialEditor(button.dataset.editSpecial);
+  });
 
   list.querySelectorAll('[data-delete-special]').forEach(button=>{
     button.onclick=async()=>{
@@ -531,6 +563,36 @@ document.getElementById('saveBtn').onclick=async()=>{
   if(!/^\d{6}$/.test(loco)){
     toast('TFZ-Nummer muss exakt 6-stellig sein.');
     document.getElementById('locoInput').focus();
+    return;
+  }
+
+
+  /* Bestehende Sonderabstellung bearbeiten */
+  if(selectedSpecialId!==null){
+    const item=supaSpecial.find(entry=>String(entry.id)===String(selectedSpecialId));
+    if(!item)return;
+    const track=document.getElementById('specialTrackInput').value.trim();
+    if(!track){toast('Bitte Gleis oder Abstellort eintragen.');return;}
+    const oldStatus=item.status||'occupied';
+    const oldLoco=item.loco||'';
+    let outReason='';
+    if(oldStatus==='occupied'&&status!=='occupied'){
+      outReason=askOutbookingReason(oldLoco,track,item.id);
+      if(!outReason)return;
+    }
+    const {data,error}=await supabaseClient.from('special_storage')
+      .update({status,loco:locoFormatted,track,note,urgent})
+      .eq('id',item.id).select().single();
+    if(error){toast('Sonderabstellung konnte nicht aktualisiert werden.');console.error(error);return;}
+    Object.assign(item,data);
+    if(oldStatus!=='occupied'&&status==='occupied'){
+      await writeHistory('inbooking',track,'Sonderabstellung '+item.id,locoFormatted,note);
+    }else if(oldStatus==='occupied'&&status!=='occupied'){
+      await writeHistory('outbooking',track,'Sonderabstellung '+item.id,oldLoco,outReason);
+    }
+    renderOtherStorage();
+    closeModal();
+    toast('Sonderabstellung aktualisiert.');
     return;
   }
 
