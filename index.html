@@ -76,7 +76,7 @@ button.danger{color:var(--redText)}
 .track-meta{font-size:12px;color:var(--muted);font-weight:400}
 .slots{padding:14px;overflow-x:auto}
 .track-diagram{display:flex;gap:9px;min-width:max-content;align-items:stretch}
-.slot{width:112px;min-height:112px;text-align:left;padding:10px;border-radius:10px;display:flex;flex-direction:column;gap:6px}
+.slot{position:relative;width:112px;min-height:112px;text-align:left;padding:10px;border-radius:10px;display:flex;flex-direction:column;gap:6px}
 .slot.free{background:var(--green);border-color:transparent;color:var(--greenText)}
 .slot.occupied{background:var(--blue);border-color:transparent;color:var(--blueText)}
 .slot.reserved{background:var(--yellow);border-color:transparent;color:var(--yellowText)}
@@ -91,13 +91,15 @@ button.danger{color:var(--redText)}
 .section-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .history-list{display:grid;gap:8px}
 .history-entry{display:grid;grid-template-columns:105px minmax(0,1fr);gap:12px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
-.special-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px;border:1px solid transparent;border-radius:10px}
+.special-entry{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px;border:1px solid transparent;border-radius:10px}
 .special-entry.free{background:var(--green);color:var(--greenText)}
 .special-entry.occupied{background:var(--blue);color:var(--blueText)}
 .special-entry.reserved{background:var(--yellow);color:var(--yellowText)}
 .special-entry.blocked{background:var(--red);color:var(--redText)}
 .special-entry .history-time,.special-entry .history-note{color:inherit;opacity:.85}
 .special-entry .history-details{font-size:13px;overflow-wrap:anywhere}
+.urgent-flag{position:absolute;top:0;right:0;width:0;height:0;border-top:32px solid #d71920;border-left:32px solid transparent;z-index:2;pointer-events:none}
+.urgent-flag::after{content:"!";position:absolute;top:-30px;right:3px;color:#fff;font-size:13px;font-weight:900;transform:rotate(45deg)}
 .special-entry .special-status{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
 .history-type{font-size:11px;font-weight:800;text-transform:uppercase}
 .history-type.in{color:var(--greenText)}
@@ -130,7 +132,6 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
     <div><h1>Digitale V-Tfz Abstellung MANNHEIM RBF</h1><div class="subtitle">Betriebswerk · Digitale Gleisbelegung</div></div>
   </div>
   <div class="header-right">
-    <div class="pill"><span class="dot" id="syncDot"></span><span id="syncLabel">Verbinde mit Supabase …</span></div>
     <button id="themeToggle" type="button" aria-label="Nachtmodus einschalten">🌙 Nachtmodus</button>
     <button id="resetBtn">Belegung zurücksetzen</button>
   </div>
@@ -178,7 +179,8 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
     <div id="historyList" class="history-list"><div class="empty-history">Buchungshistorie wird geladen …</div></div>
   </section>
 
-  <footer style="margin-top:28px;padding:20px 0 6px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">
+  <div class="pill" style="display:inline-block;margin-top:20px"><span class="dot" id="syncDot"></span><span id="syncLabel">Verbinde mit Supabase …</span></div>
+  <footer style="margin-top:8px;padding:20px 0 6px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">
     <strong style="color:var(--text)">Impressum</strong>
     <div>Angaben gemäß § 5 TMG</div>
     <div>Betreiber: Bitte hier Name / Unternehmen eintragen</div>
@@ -211,6 +213,10 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
       <label for="locoInput">TFZ-NUMMER</label><input id="locoInput" inputmode="numeric" maxlength="7" placeholder="123 456">
       <div class="muted">Exakt 6 Ziffern, Anzeige im Format XXX XXX.</div>
     </div>
+    <div class="field" style="display:flex;align-items:center;gap:9px">
+      <input id="urgentInput" type="checkbox" style="width:auto;margin:0">
+      <label for="urgentInput" style="font-size:14px;color:var(--text)">dringend</label>
+    </div>
     <div class="field">
       <label for="noteInput">BEMERKUNG (OPTIONAL)</label><textarea id="noteInput" rows="2" placeholder="Bemerkung …"></textarea>
     </div>
@@ -237,14 +243,14 @@ let selected=null;
 let historyRows=[];
 
 const makeSlots=(prefix,count)=>Array.from({length:count},(_,i)=>({
-  id:`${prefix}${i+1}`,status:'free',loco:'',note:'',fixed:false
+  id:`${prefix}${i+1}`,status:'free',loco:'',note:'',urgent:false,fixed:false
 }));
 
 const initial=[
  {name:'Gleis 39W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('39W',9).reverse()},
  {name:'Gleis 40W',description:'9 Abstellplätze · Schiebebühne rechts',slots:makeSlots('40W',9).reverse()},
- {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',slots:[...makeSlots('41W',2),{id:'41Mitte',status:'free',loco:'',note:'',fixed:false}]},
- {name:'Gleis 42W',description:'Prellbock · 42W3 · 42W2 · 42W1 · Weiche · 42Mitte · Hilfszug',slots:[{id:'Hilfszug',status:'occupied',loco:'',note:'Hilfszug · dauerhaft belegt',fixed:true},{id:'42Mitte',status:'free',loco:'',note:'',fixed:false},...makeSlots('42W',3)]}
+ {name:'Gleis 41W',description:'Tankstelle · Weiche · 41W2 · 41W1 · Schiebebühne · 41Mitte',slots:[...makeSlots('41W',2),{id:'41Mitte',status:'free',loco:'',note:'',urgent:false,fixed:false}]},
+ {name:'Gleis 42W',description:'Prellbock · 42W3 · 42W2 · 42W1 · Weiche · 42Mitte · Hilfszug',slots:[{id:'Hilfszug',status:'occupied',loco:'',note:'Hilfszug · dauerhaft belegt',urgent:false,fixed:true},{id:'42Mitte',status:'free',loco:'',note:'',urgent:false,fixed:false},...makeSlots('42W',3)]}
 ];
 
 const labels={free:'Frei',occupied:'Belegt',reserved:'Reserviert',blocked:'Gesperrt'};
@@ -278,8 +284,9 @@ function render(){
   const regular=(s,ti,si)=>`
     <button class="slot ${s.status}" ${s.fixed?'disabled':''} data-track="${ti}" data-slot="${si}">
       <div class="slot-top"><strong>${esc(s.id)}</strong><span>↗</span></div>
+      ${s.urgent?'<span class="urgent-flag" title="Dringend" aria-label="Dringend"></span>':''}
       <div class="slot-status">${labels[s.status]}</div>
-      <div class="loco">${s.status==='occupied'?esc(s.loco||'TFZ fehlt'):s.status==='free'?'—':labels[s.status]}</div>
+      <div class="loco">${esc(s.loco||'TFZ fehlt')}</div>
       ${s.note?`<div class="slot-note">${esc(s.note)}</div>`:''}
       <div class="slot-action">${s.fixed?'Festes Element':'Klicken zum Bearbeiten'}</div>
     </button>`;
@@ -324,6 +331,7 @@ function openEditor(ti,si){
   document.getElementById('status').value=slot.status;
   document.getElementById('locoInput').value=slot.loco||'';
   document.getElementById('noteInput').value=slot.note||'';
+  document.getElementById('urgentInput').checked=!!slot.urgent;
   document.getElementById('clearBtn').style.display='inline-block';
   syncLoco();
   document.getElementById('backdrop').classList.add('open');
@@ -345,6 +353,7 @@ function openAdd(){
   document.getElementById('status').value='occupied';
   document.getElementById('locoInput').value='';
   document.getElementById('noteInput').value='';
+  document.getElementById('urgentInput').checked=false;
   document.getElementById('specialTrackInput').value='';
   document.getElementById('clearBtn').style.display='none';
   syncLoco();
@@ -448,7 +457,7 @@ async function loadSpecialStorage(){
 
 function renderOtherStorage(){
   const list=document.getElementById('otherStorageList');
-  document.getElementById('otherStorageMeta').textContent=supaSpecial.length+' Abstellungen';
+  document.getElementById('otherStorageMeta').textContent=supaSpecial.length+' '+(supaSpecial.length===1?'Abstellung':'Abstellungen');
   if(!supaSpecial.length){
     list.innerHTML='<div class="empty-history">Noch keine Abstellungen außerhalb des Betriebswerks erfasst.</div>';
     return;
@@ -456,7 +465,8 @@ function renderOtherStorage(){
 
   list.innerHTML=supaSpecial.map(item=>`
     <div class="special-entry ${labels[item.status] ? item.status : 'occupied'}">
-      <div><strong>${esc(item.status==='occupied' ? (item.loco||'TFZ fehlt') : (labels[item.status]||'Belegt'))}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">${labels[item.status]||'Belegt'}</div></div>
+      ${item.urgent?'<span class="urgent-flag" title="Dringend" aria-label="Dringend"></span>':''}
+      <div><strong>${esc(item.loco||'TFZ fehlt')}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">${labels[item.status]||'Belegt'}</div></div>
       <div class="history-details">
         ${esc(item.note||'')}
         <button class="danger" data-delete-special="${esc(item.id)}">Löschen</button>
@@ -516,8 +526,9 @@ document.getElementById('saveBtn').onclick=async()=>{
   const loco=document.getElementById('locoInput').value.replace(/\s/g,'');
   const locoFormatted=loco.length===6?loco.slice(0,3)+' '+loco.slice(3):'';
   const note=document.getElementById('noteInput').value.trim();
+  const urgent=document.getElementById('urgentInput').checked;
 
-  if((status==='occupied' || loco.length>0) && !/^\d{6}$/.test(loco)){
+  if(!/^\d{6}$/.test(loco)){
     toast('TFZ-Nummer muss exakt 6-stellig sein.');
     document.getElementById('locoInput').focus();
     return;
@@ -537,7 +548,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     }
 
     const {error}=await supabaseClient.from('parking_slots')
-      .update({status,loco:locoFormatted,note})
+      .update({status,loco:locoFormatted,note,urgent})
       .eq('id',slot.id);
 
     if(error){toast('Speichern fehlgeschlagen.');console.error(error);return;}
@@ -551,6 +562,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     slot.status=status;
     slot.loco=locoFormatted;
     slot.note=note;
+    slot.urgent=urgent;
     render();
     closeModal();
     toast('Abstellplatz aktualisiert.');
@@ -563,7 +575,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     if(!track){toast('Bitte Gleis oder Abstellort eintragen.');return;}
 
     const {data,error}=await supabaseClient.from('special_storage')
-      .insert({status,loco:locoFormatted,track,note}).select().single();
+      .insert({status,loco:locoFormatted,track,note,urgent}).select().single();
 
     if(error){
       console.error(error);
@@ -608,7 +620,7 @@ document.getElementById('saveBtn').onclick=async()=>{
   const trackName=tracks[pick.ti].name;
 
   const {error}=await supabaseClient.from('parking_slots')
-    .update({status:'occupied',loco:locoFormatted,note})
+    .update({status:'occupied',loco:locoFormatted,note,urgent})
     .eq('id',slot.id);
 
   if(error){toast('Speichern fehlgeschlagen.');console.error(error);return;}
@@ -616,6 +628,7 @@ document.getElementById('saveBtn').onclick=async()=>{
   slot.status='occupied';
   slot.loco=locoFormatted;
   slot.note=note;
+  slot.urgent=urgent;
 
   await writeHistory('inbooking',trackName,slot.id,locoFormatted,note);
   render();
@@ -638,7 +651,7 @@ document.getElementById('clearBtn').onclick=async()=>{
   }
 
   const {error}=await supabaseClient.from('parking_slots')
-    .update({status:'free',loco:'',note:''})
+    .update({status:'free',loco:'',note:'',urgent:false})
     .eq('id',slot.id);
 
   if(error){toast('Freigeben fehlgeschlagen.');console.error(error);return;}
@@ -650,6 +663,7 @@ document.getElementById('clearBtn').onclick=async()=>{
   slot.status='free';
   slot.loco='';
   slot.note='';
+  slot.urgent=false;
   render();
   closeModal();
   toast('Platz wurde freigegeben.');
@@ -670,7 +684,7 @@ document.getElementById('resetBtn').onclick=async()=>{
     .map(slot=>({trackName:track.name,slotId:slot.id,loco:slot.loco,note:slot.note})));
 
   const {error}=await supabaseClient.from('parking_slots')
-    .update({status:'free',loco:'',note:''}).eq('fixed',false);
+    .update({status:'free',loco:'',note:'',urgent:false}).eq('fixed',false);
 
   if(error){toast('Zurücksetzen fehlgeschlagen.');console.error(error);return;}
 
@@ -679,7 +693,7 @@ document.getElementById('resetBtn').onclick=async()=>{
   }
 
   tracks.forEach(track=>track.slots.forEach(slot=>{
-    if(!slot.fixed){slot.status='free';slot.loco='';slot.note='';}
+    if(!slot.fixed){slot.status='free';slot.loco='';slot.note='';slot.urgent=false;}
   }));
 
   render();
@@ -759,6 +773,7 @@ async function supaLoad(){
       status:slot.status,
       loco:slot.loco||'',
       note:slot.note||'',
+      urgent:!!slot.urgent,
       fixed:!!slot.fixed,
       sort_order:ti*100+si
     })));
@@ -777,6 +792,7 @@ async function supaLoad(){
         slot.status=row.status;
         slot.loco=row.loco||'';
         slot.note=row.note||'';
+        slot.urgent=!!row.urgent;
         slot.fixed=!!row.fixed;
       }
     });
