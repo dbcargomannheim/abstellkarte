@@ -91,6 +91,10 @@ button.danger{color:var(--redText)}
 .section-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .history-list{display:grid;gap:8px}
 .history-entry{display:grid;grid-template-columns:105px minmax(0,1fr);gap:12px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
+.special-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px;border:1px solid transparent;border-radius:10px;background:var(--blue);color:var(--blueText)}
+.special-entry .history-time,.special-entry .history-note{color:var(--blueText);opacity:.85}
+.special-entry .history-details{font-size:13px;overflow-wrap:anywhere}
+.special-entry .special-status{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
 .history-type{font-size:11px;font-weight:800;text-transform:uppercase}
 .history-type.in{color:var(--greenText)}
 .history-type.out{color:var(--redText)}
@@ -447,11 +451,11 @@ function renderOtherStorage(){
   }
 
   list.innerHTML=supaSpecial.map(item=>`
-    <div class="history-entry">
-      <div><strong>${esc(item.loco||'')}</strong><div class="history-time">${esc(item.track||'')}</div></div>
+    <div class="special-entry occupied">
+      <div><strong>${esc(item.loco||'')}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">Belegt</div></div>
       <div class="history-details">
         ${esc(item.note||'')}
-        <button class="danger" data-delete-special="${esc(item.id)}" style="float:right">Löschen</button>
+        <button class="danger" data-delete-special="${esc(item.id)}">Löschen</button>
       </div>
     </div>`).join('');
 
@@ -639,7 +643,11 @@ document.getElementById('clearBtn').onclick=async()=>{
 
 /* Belegung zurücksetzen */
 document.getElementById('resetBtn').onclick=async()=>{
-  if(!supaReady||!confirm('Alle regulären Stellplätze wirklich leeren?'))return;
+  if(!supaReady)return;
+  const resetPassword=prompt('Bitte Passwort für „Belegung zurücksetzen“ eingeben:');
+  if(resetPassword===null)return;
+  if(resetPassword!=='1435'){toast('Falsches Passwort. Belegung wurde nicht zurückgesetzt.');return;}
+  if(!confirm('Alle regulären Stellplätze wirklich leeren?'))return;
   const resetReason=prompt('Bitte den Grund für das Ausbuchen aller belegten Loks eingeben:','')?.trim()||'';
   if(!resetReason){toast('Zurücksetzen abgebrochen: Bitte einen Ausbuchungsgrund eingeben.');return;}
 
