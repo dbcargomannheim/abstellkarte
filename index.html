@@ -288,7 +288,7 @@ function render(){
       <div class="slot-top"><strong>${esc(s.id)}</strong><span>↗</span></div>
       ${s.urgent?'<span class="urgent-flag" title="Dringend" aria-label="Dringend"></span>':''}
       <div class="slot-status">${labels[s.status]}</div>
-      <div class="loco">${esc(s.loco||'TFZ fehlt')}</div>
+      <div class="loco">${esc(s.loco||'-')}</div>
       ${s.note?`<div class="slot-note">${esc(s.note)}</div>`:''}
       <div class="slot-action">${s.fixed?'Festes Element':'Klicken zum Bearbeiten'}</div>
     </button>`;
@@ -493,7 +493,7 @@ function renderOtherStorage(){
   list.innerHTML=supaSpecial.map(item=>`
     <div class="special-entry ${labels[item.status] ? item.status : 'occupied'}">
       ${item.urgent?'<span class="urgent-flag" title="Dringend" aria-label="Dringend"></span>':''}
-      <div><strong>${esc(item.loco||'TFZ fehlt')}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">${labels[item.status]||'Belegt'}</div></div>
+      <div><strong>${esc(item.loco||'-')}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">${labels[item.status]||'Belegt'}</div></div>
       <div class="history-details">
         ${esc(item.note||'')}
         <button type="button" data-edit-special="${esc(item.id)}">Bearbeiten</button>
