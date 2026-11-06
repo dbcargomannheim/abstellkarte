@@ -91,8 +91,12 @@ button.danger{color:var(--redText)}
 .section-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .history-list{display:grid;gap:8px}
 .history-entry{display:grid;grid-template-columns:105px minmax(0,1fr);gap:12px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
-.special-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px;border:1px solid transparent;border-radius:10px;background:var(--blue);color:var(--blueText)}
-.special-entry .history-time,.special-entry .history-note{color:var(--blueText);opacity:.85}
+.special-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px;border:1px solid transparent;border-radius:10px}
+.special-entry.free{background:var(--green);color:var(--greenText)}
+.special-entry.occupied{background:var(--blue);color:var(--blueText)}
+.special-entry.reserved{background:var(--yellow);color:var(--yellowText)}
+.special-entry.blocked{background:var(--red);color:var(--redText)}
+.special-entry .history-time,.special-entry .history-note{color:inherit;opacity:.85}
 .special-entry .history-details{font-size:13px;overflow-wrap:anywhere}
 .special-entry .special-status{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
 .history-type{font-size:11px;font-weight:800;text-transform:uppercase}
@@ -451,8 +455,8 @@ function renderOtherStorage(){
   }
 
   list.innerHTML=supaSpecial.map(item=>`
-    <div class="special-entry occupied">
-      <div><strong>${esc(item.loco||'')}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">Belegt</div></div>
+    <div class="special-entry ${labels[item.status] ? item.status : 'occupied'}">
+      <div><strong>${esc(item.status==='occupied' ? (item.loco||'TFZ fehlt') : (labels[item.status]||'Belegt'))}</strong><div class="history-time">${esc(item.track||'')}</div><div class="special-status">${labels[item.status]||'Belegt'}</div></div>
       <div class="history-details">
         ${esc(item.note||'')}
         <button class="danger" data-delete-special="${esc(item.id)}">Löschen</button>
@@ -482,6 +486,10 @@ function renderOtherStorage(){
       supaSpecial=supaSpecial.filter(x=>String(x.id)!==String(item.id));
       renderOtherStorage();
 
+      if(item.status!=='occupied'){
+        toast('Sonderabstellung gelöscht.');
+        return;
+      }
       const historyResult=await supabaseClient.from('parking_history').insert({
         event_type:'outbooking',
         track_name:item.track,
@@ -555,7 +563,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     if(!track){toast('Bitte Gleis oder Abstellort eintragen.');return;}
 
     const {data,error}=await supabaseClient.from('special_storage')
-      .insert({loco:locoFormatted,track,note}).select().single();
+      .insert({status,loco:status==='occupied'?locoFormatted:'',track,note}).select().single();
 
     if(error){
       console.error(error);
@@ -565,22 +573,28 @@ document.getElementById('saveBtn').onclick=async()=>{
 
     supaSpecial.push(data);
 
-    const historyResult=await supabaseClient.from('parking_history').insert({
-      event_type:'inbooking',
-      track_name:data.track,
-      slot_id:'Sonderabstellung '+data.id,
-      loco:data.loco||'',
-      reason:data.note||'Sonderabstellung'
-    });
+    let historyError=null;
+    if(status==='occupied'){
+      const historyResult=await supabaseClient.from('parking_history').insert({
+        event_type:'inbooking',
+        track_name:data.track,
+        slot_id:'Sonderabstellung '+data.id,
+        loco:data.loco||'',
+        reason:data.note||'Sonderabstellung'
+      });
+      historyError=historyResult.error;
+    }
 
     renderOtherStorage();
     closeModal();
 
-    toast(historyResult.error
+    toast(historyError
       ? 'Sonderabstellung gespeichert, aber Chronik-Eintrag fehlgeschlagen.'
-      : 'Sonderabstellung gespeichert und in Chronik erfasst.');
+      : status==='occupied'
+        ? 'Sonderabstellung gespeichert und in Chronik erfasst.'
+        : 'Sonderabstellung gespeichert.');
 
-    if(historyResult.error)console.error(historyResult.error);
+    if(historyError)console.error(historyError);
     return;
   }
 
@@ -679,7 +693,7 @@ document.getElementById('exportBtn').onclick=()=>{
     ...tracks.flatMap(track=>track.slots.map(slot=>[
       track.name,slot.id,labels[slot.status],slot.loco||'',slot.note||''
     ])),
-    ...supaSpecial.map(item=>['Sondergleis',item.track,'Belegt',item.loco||'',item.note||''])
+    ...supaSpecial.map(item=>['Sondergleis',item.track,labels[item.status]||'Belegt',item.loco||'',item.note||''])
   ];
 
   const csv='\ufeff'+rows.map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(';')).join('\r\n');
