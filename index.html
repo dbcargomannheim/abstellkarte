@@ -840,11 +840,15 @@ document.getElementById('refreshHistoryBtn').onclick=loadBookingHistory;
 /* Dispo-Workflow: Authentifizierung und Aktionen laufen ausschließlich über geschützte SQL-RPCs. */
 let dispoSession=localStorage.getItem('vtfz_dispo_session')||'';
 let dispoLockActive=false;
-let lastRequestIds=new Set();
-let lastRingAtById={};
-let requestPollTimer=null;
-let mutedUntilById={};
+let handledRequestIds=new Set();
 const chime=document.getElementById('requestChime');
+chime.loop=true;
+function syncRequestChime(rows){
+  const shouldRing=(rows||[]).some(r=>r.status==='open'&&!handledRequestIds.has(String(r.id))&&(!r.muted_until||new Date(r.muted_until).getTime()<=Date.now()));
+  if(shouldRing){
+    if(chime.paused){chime.loop=true;chime.currentTime=0;chime.play().catch(e=>console.warn('Tonwiedergabe vom Browser blockiert:',e));}
+  }else if(!chime.paused){chime.pause();chime.currentTime=0;}
+}
 function showDispoLockNotice(){
   toast('Ein Lokdisponent ist online und weist die Loks einem Stellplatz zu. Bitte „Tfz-Abstellung an Dispo anfragen“ nutzen.');
   document.getElementById('employeeRequestPanel').style.display='block';
@@ -871,6 +875,7 @@ async function dispoLogin(){
   toast('Disposition angemeldet.');
 }
 async function dispoLogout(){
+  chime.pause();chime.currentTime=0;
   if(dispoSession)await supabaseClient.rpc('vtfz_dispo_logout',{p_token:dispoSession});
   dispoSession='';localStorage.removeItem('vtfz_dispo_session');
   document.getElementById('dispoPanel').style.display='none';
@@ -905,13 +910,11 @@ async function refreshDispoRequests(){
   const {data,error}=await supabaseClient.rpc('vtfz_list_requests',{p_token:dispoSession});
   if(error){console.error(error);return;}
   const rows=data||[];const box=document.getElementById('dispoRequests');
-  const active=new Set(rows.filter(r=>r.status==='open').map(r=>r.id));
-  for(const r of rows){const mutedUntil=r.muted_until?new Date(r.muted_until).getTime():0;const muted=mutedUntil>Date.now();const isNew=!lastRequestIds.has(r.id)&&!mutedUntil;const repeatDue=mutedUntil>0&&Date.now()>=mutedUntil&&(lastRingAtById[r.id]||0)<mutedUntil;if(r.status==='open'&&!muted&&(isNew||repeatDue)){try{chime.currentTime=0;await chime.play();lastRingAtById[r.id]=Date.now();}catch(e){console.warn('Tonwiedergabe vom Browser blockiert:',e);}}}
-  lastRequestIds=active;
+  syncRequestChime(rows);
   if(!rows.length){box.innerHTML='<div class="empty-history">Noch keine offenen Anfragen.</div>';return;}
   box.innerHTML=rows.map(r=>`<div class="history-entry"><div><strong>Tfz ${esc(r.loco)}</strong><div class="history-time">Fahrleistung: ${esc(r.duty)} · ${new Date(r.created_at).toLocaleString('de-DE')}</div><div class="history-note">Status: ${esc(r.status)}</div></div><div class="right-actions"><button data-handle="${r.id}">Anfrage bearbeiten</button><button data-mute="${r.id}">Anfrage stummschalten</button><button class="danger" data-delete-request="${r.id}">Tfz-Abstellanfrage löschen</button></div></div>`).join('');
-  box.querySelectorAll('[data-handle]').forEach(b=>b.onclick=()=>openDispoAssignment(b.dataset.handle,rows));
-  box.querySelectorAll('[data-mute]').forEach(b=>b.onclick=async()=>{const {error}=await supabaseClient.rpc('vtfz_mute_request',{p_token:dispoSession,p_request_id:b.dataset.mute});if(error){toast('Stummschalten fehlgeschlagen.');return;}mutedUntilById[b.dataset.mute]=Date.now()+300000;toast('Klingelton für fünf Minuten stummgeschaltet.');setTimeout(()=>{delete mutedUntilById[b.dataset.mute];refreshDispoRequests();},300000);});
+  box.querySelectorAll('[data-handle]').forEach(b=>b.onclick=()=>{handledRequestIds.add(String(b.dataset.handle));syncRequestChime(rows);openDispoAssignment(b.dataset.handle,rows);});
+  box.querySelectorAll('[data-mute]').forEach(b=>b.onclick=async()=>{const {error}=await supabaseClient.rpc('vtfz_mute_request',{p_token:dispoSession,p_request_id:b.dataset.mute});if(error){toast('Stummschalten fehlgeschlagen.');return;}toast('Klingelton für fünf Minuten stummgeschaltet.');await refreshDispoRequests();});
   box.querySelectorAll('[data-delete-request]').forEach(b=>b.onclick=async()=>{if(!confirm('Diese Abstellanfrage vollständig löschen?'))return;const {error}=await supabaseClient.rpc('vtfz_delete_request',{p_token:dispoSession,p_request_id:b.dataset.deleteRequest});if(error){toast('Löschen fehlgeschlagen.');return;}toast('Abstellanfrage gelöscht.');await refreshDispoRequests();});
 }
 async function openDispoAssignment(id,rows){
