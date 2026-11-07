@@ -838,7 +838,7 @@ document.getElementById('refreshHistoryBtn').onclick=loadBookingHistory;
 
 
 /* Dispo-Workflow: Authentifizierung und Aktionen laufen ausschließlich über geschützte SQL-RPCs. */
-let dispoSession=localStorage.getItem('vtfz_dispo_session')||'';
+let dispoSession=sessionStorage.getItem('vtfz_dispo_session')||'';
 let dispoLockActive=false;
 let handledRequestIds=new Set();
 const chime=document.getElementById('requestChime');
@@ -867,19 +867,21 @@ async function dispoLogin(){
   const {data,error}=await supabaseClient.rpc('vtfz_dispo_login',{p_password:password});
   if(error||!data){toast('Anmeldung fehlgeschlagen.');console.error(error);return;}
   dispoSession=data;
-  localStorage.setItem('vtfz_dispo_session',dispoSession);
+  sessionStorage.setItem('vtfz_dispo_session',dispoSession);
   document.getElementById('dispoPanel').style.display='block';
   document.getElementById('employeeRequestPanel').style.display='none';
-  document.getElementById('dispoLoginBtn').textContent='Dispo angemeldet';
+  document.getElementById('dispoLoginBtn').textContent='Disposition abmelden';
+  document.getElementById('dispoLogoutBtn').style.display='none';
   await refreshDispoRequests();
   toast('Disposition angemeldet.');
 }
 async function dispoLogout(){
   chime.pause();chime.currentTime=0;
   if(dispoSession)await supabaseClient.rpc('vtfz_dispo_logout',{p_token:dispoSession});
-  dispoSession='';localStorage.removeItem('vtfz_dispo_session');
+  dispoSession='';sessionStorage.removeItem('vtfz_dispo_session');
   document.getElementById('dispoPanel').style.display='none';
   document.getElementById('dispoLoginBtn').textContent='Dispo-Anmeldung';
+  document.getElementById('dispoLogoutBtn').style.display='inline-block';
   await refreshDispoState();
   toast('Disposition abgemeldet.');
 }
@@ -928,7 +930,7 @@ async function openDispoAssignment(id,rows){
   if(error){toast('Zuweisung fehlgeschlagen.');console.error(error);return;}
   toast('Stellplatz zugewiesen.');await supaLoad();await refreshDispoRequests();
 }
-document.getElementById('dispoLoginBtn').onclick=dispoLogin;
+document.getElementById('dispoLoginBtn').onclick=()=>dispoSession?dispoLogout():dispoLogin();
 document.getElementById('dispoLogoutBtn').onclick=dispoLogout;
 document.getElementById('sendRequestBtn').onclick=sendDispoRequest;
 document.getElementById('cancelMyRequestBtn').onclick=async()=>{const id=localStorage.getItem('vtfz_my_request');if(!id||!confirm('Abstellanfrage wirklich zurückziehen?'))return;const {error}=await supabaseClient.rpc('vtfz_cancel_request',{p_request_id:id});if(error){toast('Anfrage konnte nicht zurückgezogen werden.');return;}localStorage.removeItem('vtfz_my_request');document.getElementById('cancelMyRequestBtn').style.display='none';document.getElementById('myRequestStatus').textContent='Abstellanfrage zurückgezogen.';toast('Anfrage gelöscht.');};
@@ -993,7 +995,21 @@ async function supaLoad(){
 render();
 
 refreshDispoState();
-if(dispoSession){document.getElementById('dispoPanel').style.display='block';document.getElementById('dispoLoginBtn').textContent='Dispo angemeldet';}
+if(dispoSession){document.getElementById('dispoPanel').style.display='block';document.getElementById('dispoLoginBtn').textContent='Disposition abmelden';document.getElementById('dispoLogoutBtn').style.display='none';}
+
+// Beim Schließen oder Verlassen des Tabs die Dispo-Sitzung serverseitig beenden.
+window.addEventListener('pagehide',()=>{
+  if(!dispoSession)return;
+  const token=dispoSession;
+  sessionStorage.removeItem('vtfz_dispo_session');
+  try{
+    fetch('https://lpcgcmxuslaetlgtxzfs.supabase.co/rest/v1/rpc/vtfz_dispo_logout',{
+      method:'POST',keepalive:true,
+      headers:{'Content-Type':'application/json','apikey':'sb_publishable_9KVjAV4KehTzuwTCcxlAuQ_6U9CNZ4y','Authorization':'Bearer sb_publishable_9KVjAV4KehTzuwTCcxlAuQ_6U9CNZ4y'},
+      body:JSON.stringify({p_token:token})
+    });
+  }catch(e){console.warn('Dispo-Abmeldung beim Schließen konnte nicht bestätigt werden.',e);}
+});
 supaLoad().catch(error=>{
   syncLabel.textContent='Supabase Fehler';
   toast('Supabase-Verbindung fehlgeschlagen.');
