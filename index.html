@@ -421,7 +421,7 @@ function formatLoco(){
 
 /* Bei jeder Ausbuchung einen verpflichtenden Grund erfassen. */
 function askOutbookingReason(loco,trackName,slotId){
-  const value=prompt(`Warum wird Lok ${loco||'(ohne TFZ-Nummer)'} ausgebucht?\n${trackName} · Platz ${slotId}`,'') ;
+  const value=prompt(`Aus welcher Fahrleistung wird Lok ${loco||'(ohne TFZ-Nummer)'} ausgebucht?\n${trackName} · Platz ${slotId}`,'') ;
   if(value===null)return null;
   const reason=value.trim();
   if(!reason){toast('Ausbuchung abgebrochen: Bitte einen Grund eingeben.');return null;}
@@ -575,8 +575,14 @@ document.getElementById('saveBtn').onclick=async()=>{
   const status=document.getElementById('status').value;
   const loco=document.getElementById('locoInput').value.replace(/\s/g,'');
   const locoFormatted=loco.length===6?loco.slice(0,3)+' '+loco.slice(3):'';
-  const note=document.getElementById('noteInput').value.trim();
+  let note=document.getElementById('noteInput').value.trim();
   const urgent=document.getElementById('urgentInput').checked;
+  if(status==='occupied' && !selected && selectedSpecialId===null){
+    const duty=prompt('Bitte Fahrleistung eintragen:','');
+    if(duty===null)return;
+    if(!duty.trim()){toast('Einbuchung abgebrochen: Bitte die Fahrleistung eintragen.');return;}
+    note='Aus Fahrleistung '+duty.trim()+(note?' · '+note:'');
+  }
 
   if(!/^\d{6}$/.test(loco)){
     toast('TFZ-Nummer muss exakt 6-stellig sein.');
@@ -627,9 +633,14 @@ document.getElementById('saveBtn').onclick=async()=>{
       if(!outReason)return;
     }
 
-    const {error}=await supabaseClient.from('parking_slots')
-      .update({status,loco:locoFormatted,note,urgent})
-      .eq('id',slot.id);
+    let error=null;
+    if(dispoSession){
+      const result=await supabaseClient.rpc('vtfz_dispo_manual_slot_v2',{p_token:dispoSession,p_slot_id:slot.id,p_status:status,p_loco:locoFormatted,p_note:note,p_urgent:urgent,p_reason:outReason});
+      error=result.error;
+    }else{
+      const result=await supabaseClient.from('parking_slots').update({status,loco:locoFormatted,note,urgent}).eq('id',slot.id);
+      error=result.error;
+    }
 
     if(error){toast('Speichern fehlgeschlagen.');console.error(error);return;}
 
@@ -699,9 +710,14 @@ document.getElementById('saveBtn').onclick=async()=>{
   const slot=tracks[pick.ti].slots[pick.si];
   const trackName=tracks[pick.ti].name;
 
-  const {error}=await supabaseClient.from('parking_slots')
-    .update({status:'occupied',loco:locoFormatted,note,urgent})
-    .eq('id',slot.id);
+  let error=null;
+  if(dispoSession){
+    const result=await supabaseClient.rpc('vtfz_dispo_manual_slot_v2',{p_token:dispoSession,p_slot_id:slot.id,p_status:'occupied',p_loco:locoFormatted,p_note:note,p_urgent:urgent,p_reason:null});
+    error=result.error;
+  }else{
+    const result=await supabaseClient.from('parking_slots').update({status:'occupied',loco:locoFormatted,note,urgent}).eq('id',slot.id);
+    error=result.error;
+  }
 
   if(error){toast('Speichern fehlgeschlagen.');console.error(error);return;}
 
@@ -731,9 +747,14 @@ document.getElementById('clearBtn').onclick=async()=>{
     if(!outReason)return;
   }
 
-  const {error}=await supabaseClient.from('parking_slots')
-    .update({status:'free',loco:'',note:'',urgent:false})
-    .eq('id',slot.id);
+  let error=null;
+  if(dispoSession){
+    const result=await supabaseClient.rpc('vtfz_dispo_manual_slot_v2',{p_token:dispoSession,p_slot_id:slot.id,p_status:'free',p_loco:'',p_note:'',p_urgent:false,p_reason:outReason});
+    error=result.error;
+  }else{
+    const result=await supabaseClient.from('parking_slots').update({status:'free',loco:'',note:'',urgent:false}).eq('id',slot.id);
+    error=result.error;
+  }
 
   if(error){toast('Freigeben fehlgeschlagen.');console.error(error);return;}
 
@@ -754,9 +775,8 @@ document.getElementById('clearBtn').onclick=async()=>{
 document.getElementById('resetBtn').onclick=async()=>{
   if(dispoLockActive&&!dispoSession){showDispoLockNotice();return;}
   if(!supaReady)return;
-  const resetPassword=prompt('Bitte Passwort eingeben:');
-  if(resetPassword===null)return;
-  if(resetPassword!=='1435'){toast('Falsches Passwort. Belegung wurde nicht zurückgesetzt.');return;}
+  toast('Das Zurücksetzen ist aus Sicherheitsgründen deaktiviert. Bitte die geschützte Admin-Funktion verwenden.');
+  return;
   if(!confirm('Alle regulären Stellplätze wirklich leeren?'))return;
   const resetReason=prompt('Bitte den Grund für das Ausbuchen aller belegten Loks eingeben:','')?.trim()||'';
   if(!resetReason){toast('Zurücksetzen abgebrochen: Bitte einen Ausbuchungsgrund eingeben.');return;}
@@ -841,6 +861,7 @@ document.getElementById('refreshHistoryBtn').onclick=loadBookingHistory;
 let dispoSession=sessionStorage.getItem('vtfz_dispo_session')||'';
 let dispoLockActive=false;
 let handledRequestIds=new Set();
+let acknowledgedAssignmentIds=new Set();
 const chime=document.getElementById('requestChime');
 chime.loop=true;
 function syncRequestChime(rows){
@@ -920,9 +941,34 @@ async function refreshMyRequest(){
   if(error||!data)return;
   const row=Array.isArray(data)?data[0]:data;if(!row)return;
   const el=document.getElementById('myRequestStatus');
-  if(row.status==='assigned'){el.textContent=`Tfz ${row.loco} – ${row.assigned_place} – zugewiesen durch Disposition`;document.getElementById('cancelMyRequestBtn').style.display='none';}
+  if(row.status==='assigned'){
+    el.textContent=`Tfz ${row.loco} – ${row.assigned_place} – zugewiesen durch Disposition`;
+    document.getElementById('cancelMyRequestBtn').style.display='none';
+    if(!acknowledgedAssignmentIds.has(String(id))){
+      acknowledgedAssignmentIds.add(String(id));
+      const answer=await new Promise(resolve=>{
+        const overlay=document.createElement('div');
+        overlay.style.cssText='position:fixed;inset:0;background:#0009;z-index:99999;display:grid;place-items:center;padding:20px';
+        overlay.innerHTML='<div style="background:white;color:#182532;border-radius:14px;padding:24px;max-width:440px;width:100%;box-shadow:0 10px 40px #0005"><h2 style="margin-top:0">Abstellplatz zugewiesen</h2><p>'+esc(row.loco)+' – '+esc(row.assigned_place)+'</p><p>Bitte bestätigen Sie die Zuweisung oder fordern Sie einen alternativen Abstellplatz an.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button data-ok>Okay</button><button data-alt class="danger">Alternativen Abstellplatz anfragen</button></div></div>';
+        document.body.appendChild(overlay);
+        const stop=()=>{chime.pause();chime.currentTime=0;overlay.remove();};
+        chime.loop=true;chime.currentTime=0;chime.play().catch(()=>{});
+        overlay.querySelector('[data-ok]').onclick=()=>{stop();resolve('ok');};
+        overlay.querySelector('[data-alt]').onclick=()=>{stop();resolve('alt');};
+      });
+      if(answer==='alt'){
+        toast('Bitte Disposition telefonisch kontaktieren und auf den nicht ausführbaren Abstellplatz hinweisen.');
+      }
+    }
+  }
   else if(row.status==='deleted'||row.status==='cancelled'){el.textContent=row.status==='deleted'?'Disposition hat die Abstellanfrage gelöscht':'Abstellanfrage zurückgezogen.';localStorage.removeItem('vtfz_my_request');document.getElementById('cancelMyRequestBtn').style.display='none';}
-  else if(row.status==='open'){el.textContent='Anfrage ist bei der Disposition eingegangen.';document.getElementById('cancelMyRequestBtn').style.display='inline-block';}
+  else if(row.status==='open'){
+    const mutedUntil=row.muted_until?new Date(row.muted_until).getTime():0;
+    el.textContent=mutedUntil>Date.now()
+      ?'Disposition aktuell ausgelastet. Die Anfrage wird bearbeitet. Bitte warten.'
+      :'Anfrage ist bei der Disposition eingegangen.';
+    document.getElementById('cancelMyRequestBtn').style.display='inline-block';
+  }
 }
 async function refreshDispoRequests(){
   if(!dispoSession)return;
