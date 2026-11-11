@@ -754,7 +754,7 @@ document.getElementById('clearBtn').onclick=async()=>{
 document.getElementById('resetBtn').onclick=async()=>{
   if(dispoLockActive&&!dispoSession){showDispoLockNotice();return;}
   if(!supaReady)return;
-  const resetPassword=prompt('Bitte Passwort für „Belegung zurücksetzen“ eingeben:');
+  const resetPassword=prompt('Bitte Passwort eingeben:');
   if(resetPassword===null)return;
   if(resetPassword!=='1435'){toast('Falsches Passwort. Belegung wurde nicht zurückgesetzt.');return;}
   if(!confirm('Alle regulären Stellplätze wirklich leeren?'))return;
