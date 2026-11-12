@@ -164,7 +164,11 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9p
   </div>
 
   <div id="employeeRequestPanel" class="panel" style="display:none;margin-bottom:16px">
-    <strong>Tfz-Abstellung an Disposition anfragen</strong>
+    <div class="section-heading">
+      <strong>Tfz-Abstellung an Disposition anfragen</strong>
+      <span id="dispoPresenceBadge" class="pill"><span class="dot"></span>Lokdispo-Status wird geladen</span>
+    </div>
+    <div id="dispoContacts" class="muted" style="margin-bottom:12px"></div>
     <div class="field"><label for="requestLoco">TFZ-NUMMER</label><input id="requestLoco" inputmode="numeric" maxlength="7" placeholder="123 456"></div>
     <div class="field"><label for="requestDuty">FAHRLEISTUNG</label><input id="requestDuty" placeholder="z. B. Lrf E3, Lrf A1, Lrf RMIH, Lrf GWI"></div>
     <button class="primary" id="sendRequestBtn">Abstellanfrage senden</button>
@@ -857,41 +861,70 @@ document.getElementById('otherStorageBtn').onclick=()=>{
 document.getElementById('refreshHistoryBtn').onclick=loadBookingHistory;
 
 
-/* Dispo-Workflow: Authentifizierung und Aktionen laufen ausschließlich über geschützte SQL-RPCs. */
+/* Dispo-Workflow: Mitarbeiter-Token und Dispo-Sitzungen werden serverseitig geprüft. */
 let dispoSession=sessionStorage.getItem('vtfz_dispo_session')||'';
 let dispoLockActive=false;
 let handledRequestIds=new Set();
 let acknowledgedAssignmentIds=new Set();
 const chime=document.getElementById('requestChime');
 chime.loop=true;
+
+function stopRequestChime(){
+  chime.pause();
+  chime.currentTime=0;
+}
 function syncRequestChime(rows){
   const shouldRing=(rows||[]).some(r=>r.status==='open'&&!handledRequestIds.has(String(r.id))&&(!r.muted_until||new Date(r.muted_until).getTime()<=Date.now()));
   if(shouldRing){
     if(chime.paused){chime.loop=true;chime.currentTime=0;chime.play().catch(e=>console.warn('Tonwiedergabe vom Browser blockiert:',e));}
-  }else if(!chime.paused){chime.pause();chime.currentTime=0;}
+  }else if(!chime.paused){stopRequestChime();}
 }
 function showDispoLockNotice(){
-  toast('Ein Lokdisponent ist online und weist die Loks einem Stellplatz zu. Bitte „Tfz-Abstellung an Dispo anfragen“ nutzen.');
+  toast('Ein Lokdisponent ist online. Bitte die Abstellanfrage über dieses Formular senden.');
   document.getElementById('employeeRequestPanel').style.display='block';
   document.getElementById('employeeRequestPanel').scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function refreshDispoContacts(){
+  const box=document.getElementById('dispoContacts');
+  const badge=document.getElementById('dispoPresenceBadge');
+  const {data,error}=await supabaseClient.rpc('vtfz_dispo_contacts');
+  if(error){
+    console.warn('Dispo-Kontakte nicht abrufbar:',error);
+    box.textContent='Telefonische Kontaktdaten derzeit nicht abrufbar.';
+    return;
+  }
+  const contacts=data||[];
+  if(contacts.length){
+    badge.innerHTML='<span class="dot" style="background:#35a66b"></span>Lokdispo besetzt';
+    box.innerHTML='<strong>Erreichbare Disposition:</strong><br>'+contacts.map(c=>
+      esc(c.workplace_label||'Disposition')+' · <a href="tel:'+esc(c.phone_number||'')+'">'+esc(c.phone_number||'Keine Telefonnummer hinterlegt')+'</a>'
+    ).join('<br>');
+  }else{
+    badge.innerHTML='<span class="dot" style="background:#d9534f"></span>Lokdispo unbesetzt';
+    box.textContent='Aktuell ist keine Disposition angemeldet.';
+  }
 }
 async function refreshDispoState(){
   const {data,error}=await supabaseClient.rpc('vtfz_dispo_is_active');
   if(error){console.warn('Dispo-Status nicht abrufbar:',error);return;}
   dispoLockActive=!!data;
-  document.getElementById('employeeRequestPanel').style.display=dispoLockActive&&!dispoSession?'block':'none';
-  if(dispoSession){document.getElementById('dispoPanel').style.display='block';document.getElementById('employeeRequestPanel').style.display='none';}
+  const hasMyRequest=!!localStorage.getItem('vtfz_my_request');
+  document.getElementById('employeeRequestPanel').style.display=(dispoLockActive||hasMyRequest)&&!dispoSession?'block':'none';
+  if(dispoSession){
+    document.getElementById('dispoPanel').style.display='block';
+    document.getElementById('employeeRequestPanel').style.display='none';
+  }
+  await refreshDispoContacts();
 }
 async function dispoHeartbeat(){
   if(!dispoSession)return false;
-  const {data,error}=await supabaseClient.rpc('vtfz_dispo_heartbeat',{p_token:dispoSession});
+  const {data,error}=await supabaseClient.rpc('vtfz_dispo_heartbeat_v2',{p_token:dispoSession});
   if(error){console.warn('Dispo-Heartbeat fehlgeschlagen:',error);return false;}
   if(data!==true){
     dispoSession='';sessionStorage.removeItem('vtfz_dispo_session');
-    chime.pause();chime.currentTime=0;
+    stopRequestChime();
     document.getElementById('dispoPanel').style.display='none';
     document.getElementById('dispoLoginBtn').textContent='Dispo-Anmeldung';
-    document.getElementById('dispoLogoutBtn').style.display='inline-block';
     await refreshDispoState();
     toast('Die Dispo-Sitzung ist abgelaufen. Bitte erneut anmelden.');
     return false;
@@ -901,9 +934,19 @@ async function dispoHeartbeat(){
 async function dispoLogin(){
   const password=prompt('Dispo-Kennwort eingeben:');
   if(password===null)return;
-  const {data,error}=await supabaseClient.rpc('vtfz_dispo_login',{p_password:password});
+  const workplace=prompt('Arbeitsplatz / Bezeichnung (z. B. V-Tfz Dispo, Dispo A, Dispo E):');
+  if(workplace===null)return;
+  const phone=prompt('Telefonnummer für Rückfragen:');
+  if(phone===null)return;
+  if(!workplace.trim()||!phone.trim()){toast('Arbeitsplatz und Telefonnummer müssen angegeben werden.');return;}
+  const {data,error}=await supabaseClient.rpc('vtfz_dispo_login_v2',{
+    p_password:password,
+    p_workplace:workplace.trim(),
+    p_phone:phone.trim()
+  });
   if(error||!data){toast('Anmeldung fehlgeschlagen.');console.error(error);return;}
-  dispoSession=data;
+  dispoSession=typeof data==='string'?data:(data.token||data.session_token||'');
+  if(!dispoSession){toast('Anmeldung lieferte kein Sitzungstoken.');console.error(data);return;}
   sessionStorage.setItem('vtfz_dispo_session',dispoSession);
   document.getElementById('dispoPanel').style.display='block';
   document.getElementById('employeeRequestPanel').style.display='none';
@@ -914,7 +957,7 @@ async function dispoLogin(){
   toast('Disposition angemeldet.');
 }
 async function dispoLogout(){
-  chime.pause();chime.currentTime=0;
+  stopRequestChime();
   if(dispoSession)await supabaseClient.rpc('vtfz_dispo_logout',{p_token:dispoSession});
   dispoSession='';sessionStorage.removeItem('vtfz_dispo_session');
   document.getElementById('dispoPanel').style.display='none';
@@ -928,45 +971,83 @@ async function sendDispoRequest(){
   const duty=document.getElementById('requestDuty').value.trim();
   if(!/^\d{6}$/.test(loco)){toast('TFZ-Nummer muss exakt 6-stellig sein.');return;}
   if(!duty){toast('Bitte die Fahrleistung eintragen.');return;}
-  const {data,error}=await supabaseClient.rpc('vtfz_create_request',{p_loco:loco.slice(0,3)+' '+loco.slice(3),p_duty:duty});
-  if(error){toast('Anfrage konnte nicht gesendet werden.');console.error(error);return;}
-  localStorage.setItem('vtfz_my_request',data);
+  const {data,error}=await supabaseClient.rpc('vtfz_create_request_v2',{
+    p_loco:loco.slice(0,3)+' '+loco.slice(3),
+    p_duty:duty
+  });
+  if(error||!data){toast('Anfrage konnte nicht gesendet werden.');console.error(error);return;}
+  const result=typeof data==='string'?JSON.parse(data):data;
+  if(!result.request_id||!result.employee_token){
+    toast('Supabase hat keine Mitarbeiter-Zugangsdaten zurückgegeben.');
+    console.error('Unerwartete Rückgabe von vtfz_create_request_v2:',data);
+    return;
+  }
+  localStorage.setItem('vtfz_my_request',result.request_id);
+  localStorage.setItem('vtfz_my_request_token',result.employee_token);
+  acknowledgedAssignmentIds.delete(String(result.request_id));
   document.getElementById('myRequestStatus').textContent='Abstellanfrage gesendet. Bitte auf die Zuweisung der Disposition warten.';
+  document.getElementById('requestLoco').value='';
+  document.getElementById('requestDuty').value='';
   toast('Abstellanfrage an die Disposition gesendet.');
   await refreshMyRequest();
 }
+async function showAssignmentDialog(row,id){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:#0009;z-index:99999;display:grid;place-items:center;padding:20px';
+  overlay.innerHTML='<div style="background:white;color:#182532;border-radius:14px;padding:24px;max-width:440px;width:100%;box-shadow:0 10px 40px #0005"><h2 style="margin-top:0">Abstellplatz zugewiesen</h2><p><strong>'+esc(row.loco)+'</strong> – '+esc(row.assigned_place)+'</p><p>Bitte bestätigen Sie die Zuweisung oder fordern Sie einen alternativen Abstellplatz an.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button data-ok>Okay</button><button data-alt class="danger">Alternativen Abstellplatz anfragen</button></div></div>';
+  document.body.appendChild(overlay);
+  chime.loop=true;chime.currentTime=0;chime.play().catch(()=>{});
+  return await new Promise(resolve=>{
+    const stop=()=>{stopRequestChime();overlay.remove();};
+    overlay.querySelector('[data-ok]').onclick=()=>{stop();resolve('ok');};
+    overlay.querySelector('[data-alt]').onclick=()=>{stop();resolve('alt');};
+  });
+}
+async function rejectAssignedRequest(id){
+  const token=localStorage.getItem('vtfz_my_request_token');
+  if(!token){toast('Der persönliche Anfrage-Token fehlt. Bitte die Anfrage erneut erstellen oder Disposition telefonisch kontaktieren.');return;}
+  const {data,error}=await supabaseClient.rpc('vtfz_reject_assigned_request',{
+    p_request_id:id,
+    p_employee_token:token
+  });
+  if(error){
+    toast('Der Abstellplatz konnte nicht abgelehnt werden: '+error.message);
+    console.error(error);
+    return;
+  }
+  stopRequestChime();
+  for(const key of [...acknowledgedAssignmentIds]){
+    if(key.startsWith(String(id)+'|')) acknowledgedAssignmentIds.delete(key);
+  }
+  toast('Abstellplatz abgelehnt. Der bisherige Platz wurde freigegeben und die Anfrage erneut an die Disposition übergeben.');
+  await supaLoad();
+  await refreshDispoRequests();
+  await refreshMyRequest();
+}
 async function refreshMyRequest(){
-  const id=localStorage.getItem('vtfz_my_request');if(!id)return;
+  const id=localStorage.getItem('vtfz_my_request');
+  if(!id)return;
   const {data,error}=await supabaseClient.rpc('vtfz_get_request_status',{p_request_id:id});
   if(error||!data)return;
-  const row=Array.isArray(data)?data[0]:data;if(!row)return;
+  const row=Array.isArray(data)?data[0]:data;
+  if(!row)return;
   const el=document.getElementById('myRequestStatus');
   if(row.status==='assigned'){
     el.textContent=`Tfz ${row.loco} – ${row.assigned_place} – zugewiesen durch Disposition`;
     document.getElementById('cancelMyRequestBtn').style.display='none';
-    if(!acknowledgedAssignmentIds.has(String(id))){
-      acknowledgedAssignmentIds.add(String(id));
-      const answer=await new Promise(resolve=>{
-        const overlay=document.createElement('div');
-        overlay.style.cssText='position:fixed;inset:0;background:#0009;z-index:99999;display:grid;place-items:center;padding:20px';
-        overlay.innerHTML='<div style="background:white;color:#182532;border-radius:14px;padding:24px;max-width:440px;width:100%;box-shadow:0 10px 40px #0005"><h2 style="margin-top:0">Abstellplatz zugewiesen</h2><p>'+esc(row.loco)+' – '+esc(row.assigned_place)+'</p><p>Bitte bestätigen Sie die Zuweisung oder fordern Sie einen alternativen Abstellplatz an.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button data-ok>Okay</button><button data-alt class="danger">Alternativen Abstellplatz anfragen</button></div></div>';
-        document.body.appendChild(overlay);
-        const stop=()=>{chime.pause();chime.currentTime=0;overlay.remove();};
-        chime.loop=true;chime.currentTime=0;chime.play().catch(()=>{});
-        overlay.querySelector('[data-ok]').onclick=()=>{stop();resolve('ok');};
-        overlay.querySelector('[data-alt]').onclick=()=>{stop();resolve('alt');};
-      });
-      if(answer==='alt'){
-        toast('Bitte Disposition telefonisch kontaktieren und auf den nicht ausführbaren Abstellplatz hinweisen.');
-      }
+    const assignmentKey=String(id)+'|'+String(row.assigned_place||'');
+    if(!acknowledgedAssignmentIds.has(assignmentKey)){
+      acknowledgedAssignmentIds.add(assignmentKey);
+      const answer=await showAssignmentDialog(row,id);
+      if(answer==='alt')await rejectAssignedRequest(id);
     }
-  }
-  else if(row.status==='deleted'||row.status==='cancelled'){el.textContent=row.status==='deleted'?'Disposition hat die Abstellanfrage gelöscht':'Abstellanfrage zurückgezogen.';localStorage.removeItem('vtfz_my_request');document.getElementById('cancelMyRequestBtn').style.display='none';}
-  else if(row.status==='open'){
-    const mutedUntil=row.muted_until?new Date(row.muted_until).getTime():0;
-    el.textContent=mutedUntil>Date.now()
-      ?'Disposition aktuell ausgelastet. Die Anfrage wird bearbeitet. Bitte warten.'
-      :'Anfrage ist bei der Disposition eingegangen.';
+  }else if(row.status==='deleted'||row.status==='cancelled'){
+    el.textContent=row.status==='deleted'?'Disposition hat die Abstellanfrage gelöscht':'Abstellanfrage zurückgezogen.';
+    localStorage.removeItem('vtfz_my_request');
+    localStorage.removeItem('vtfz_my_request_token');
+    document.getElementById('cancelMyRequestBtn').style.display='none';
+  }else if(row.status==='open'){
+    el.textContent='Anfrage ist bei der Disposition eingegangen.';
     document.getElementById('cancelMyRequestBtn').style.display='inline-block';
   }
 }
@@ -974,32 +1055,56 @@ async function refreshDispoRequests(){
   if(!dispoSession)return;
   const {data,error}=await supabaseClient.rpc('vtfz_list_requests',{p_token:dispoSession});
   if(error){console.error(error);return;}
-  const rows=data||[];const box=document.getElementById('dispoRequests');
+  const rows=data||[];
+  const box=document.getElementById('dispoRequests');
   syncRequestChime(rows);
   if(!rows.length){box.innerHTML='<div class="empty-history">Noch keine offenen Anfragen.</div>';return;}
-  box.innerHTML=rows.map(r=>`<div class="history-entry"><div><strong>Tfz ${esc(r.loco)}</strong><div class="history-time">Fahrleistung: ${esc(r.duty)} · ${new Date(r.created_at).toLocaleString('de-DE')}</div><div class="history-note">Status: ${esc(r.status)}</div></div><div class="right-actions"><button data-handle="${r.id}">Anfrage bearbeiten</button><button data-mute="${r.id}">Anfrage stummschalten</button><button class="danger" data-delete-request="${r.id}">Tfz-Abstellanfrage löschen</button></div></div>`).join('');
+  box.innerHTML=rows.map(r=>`<div class="history-entry"><div><strong>Tfz ${esc(r.loco)}</strong><div class="history-time">Fahrleistung: ${esc(r.duty)} · ${new Date(r.created_at).toLocaleString('de-DE')}</div><div class="history-note">Status: ${esc(r.status)}</div>${r.withdrawal_reason?`<div class="history-note" style="color:var(--redText);font-weight:700">${esc(r.withdrawal_reason)}</div>`:''}</div><div class="right-actions"><button data-handle="${r.id}">Anfrage bearbeiten</button><button data-mute="${r.id}">Anfrage stummschalten</button><button class="danger" data-delete-request="${r.id}">Tfz-Abstellanfrage löschen</button></div></div>`).join('');
   box.querySelectorAll('[data-handle]').forEach(b=>b.onclick=()=>{handledRequestIds.add(String(b.dataset.handle));syncRequestChime(rows);openDispoAssignment(b.dataset.handle,rows);});
   box.querySelectorAll('[data-mute]').forEach(b=>b.onclick=async()=>{const {error}=await supabaseClient.rpc('vtfz_mute_request',{p_token:dispoSession,p_request_id:b.dataset.mute});if(error){toast('Stummschalten fehlgeschlagen.');return;}toast('Klingelton für fünf Minuten stummgeschaltet.');await refreshDispoRequests();});
   box.querySelectorAll('[data-delete-request]').forEach(b=>b.onclick=async()=>{if(!confirm('Diese Abstellanfrage vollständig löschen?'))return;const {error}=await supabaseClient.rpc('vtfz_delete_request',{p_token:dispoSession,p_request_id:b.dataset.deleteRequest});if(error){toast('Löschen fehlgeschlagen.');return;}toast('Abstellanfrage gelöscht.');await refreshDispoRequests();});
 }
 async function openDispoAssignment(id,rows){
-  const row=rows.find(r=>String(r.id)===String(id));if(!row)return;
+  const row=rows.find(r=>String(r.id)===String(id));
+  if(!row)return;
   const free=tracks.flatMap(t=>t.slots.filter(s=>!s.fixed&&s.status==='free').map(s=>({kind:'regular',id:s.id,label:t.name+' · '+s.id})));
   free.push({kind:'special',id:'',label:'Sonderabstellung (Gleis/Abstellort eingeben)'});
   const choice=prompt('Tfz '+row.loco+' · '+row.duty+'\nFreie Stellplätze:\n'+free.map((x,i)=>(i+1)+'. '+x.label).join('\n')+'\n\nNummer eingeben:');
-  if(choice===null)return;const ix=Number(choice)-1;const pick=free[ix];if(!pick){toast('Ungültige Auswahl.');return;}
-  let specialTrack='';if(pick.kind==='special'){specialTrack=prompt('Sondergleis / Abstellort eingeben:')||'';if(!specialTrack.trim())return;}
-  const {error}=await supabaseClient.rpc('vtfz_assign_request',{p_token:dispoSession,p_request_id:id,p_kind:pick.kind,p_slot_id:pick.id,p_special_track:specialTrack});
+  if(choice===null)return;
+  const ix=Number(choice)-1;
+  const pick=free[ix];
+  if(!pick){toast('Ungültige Auswahl.');return;}
+  let specialTrack='';
+  if(pick.kind==='special'){specialTrack=prompt('Sondergleis / Abstellort eingeben:')||'';if(!specialTrack.trim())return;}
+  const {error}=await supabaseClient.rpc('vtfz_assign_request',{
+    p_token:dispoSession,p_request_id:id,p_kind:pick.kind,p_slot_id:pick.id,p_special_track:specialTrack
+  });
   if(error){toast('Zuweisung fehlgeschlagen.');console.error(error);return;}
-  toast('Stellplatz zugewiesen.');await supaLoad();await refreshDispoRequests();
+  toast('Stellplatz zugewiesen.');
+  await supaLoad();
+  await refreshDispoRequests();
 }
 document.getElementById('dispoLoginBtn').onclick=()=>dispoSession?dispoLogout():dispoLogin();
 document.getElementById('dispoLogoutBtn').onclick=dispoLogout;
 document.getElementById('sendRequestBtn').onclick=sendDispoRequest;
-document.getElementById('cancelMyRequestBtn').onclick=async()=>{const id=localStorage.getItem('vtfz_my_request');if(!id||!confirm('Abstellanfrage wirklich zurückziehen?'))return;const {error}=await supabaseClient.rpc('vtfz_cancel_request',{p_request_id:id});if(error){toast('Anfrage konnte nicht zurückgezogen werden.');return;}localStorage.removeItem('vtfz_my_request');document.getElementById('cancelMyRequestBtn').style.display='none';document.getElementById('myRequestStatus').textContent='Abstellanfrage zurückgezogen.';toast('Anfrage gelöscht.');};
-document.getElementById('requestLoco').addEventListener('input',e=>{const d=e.target.value.replace(/\D/g,'').slice(0,6);e.target.value=d.length>3?d.slice(0,3)+' '+d.slice(3):d;});
+document.getElementById('cancelMyRequestBtn').onclick=async()=>{
+  const id=localStorage.getItem('vtfz_my_request');
+  if(!id||!confirm('Abstellanfrage wirklich zurückziehen?'))return;
+  const token=localStorage.getItem('vtfz_my_request_token');
+  if(!token){toast('Persönlicher Anfrage-Token fehlt. Bitte Disposition telefonisch kontaktieren.');return;}
+  const {error}=await supabaseClient.rpc('vtfz_cancel_request_v2',{p_request_id:id,p_employee_token:token});
+  if(error){toast('Anfrage konnte nicht zurückgezogen werden: '+error.message);return;}
+  localStorage.removeItem('vtfz_my_request');
+  localStorage.removeItem('vtfz_my_request_token');
+  document.getElementById('cancelMyRequestBtn').style.display='none';
+  document.getElementById('myRequestStatus').textContent='Abstellanfrage zurückgezogen.';
+  toast('Abstellanfrage zurückgezogen.');
+};
+document.getElementById('requestLoco').addEventListener('input',e=>{
+  const d=e.target.value.replace(/\D/g,'').slice(0,6);
+  e.target.value=d.length>3?d.slice(0,3)+' '+d.slice(3):d;
+});
 setInterval(async()=>{await refreshDispoState();await refreshMyRequest();if(dispoSession)await refreshDispoRequests();},5000);
-// Heartbeat verlängert die Dispo-Sitzung unabhängig davon, ob der Tab im Vordergrund ist.
 setInterval(()=>{if(dispoSession)dispoHeartbeat();},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&dispoSession)dispoHeartbeat();});
 window.addEventListener('focus',()=>{if(dispoSession)dispoHeartbeat();});
@@ -1064,19 +1169,7 @@ render();
 refreshDispoState();
 if(dispoSession){document.getElementById('dispoPanel').style.display='block';document.getElementById('dispoLoginBtn').textContent='Disposition abmelden';document.getElementById('dispoLogoutBtn').style.display='none';dispoHeartbeat();}
 
-// Beim Schließen oder Verlassen des Tabs die Dispo-Sitzung serverseitig beenden.
-window.addEventListener('pagehide',()=>{
-  if(!dispoSession)return;
-  const token=dispoSession;
-  sessionStorage.removeItem('vtfz_dispo_session');
-  try{
-    fetch('https://lpcgcmxuslaetlgtxzfs.supabase.co/rest/v1/rpc/vtfz_dispo_logout',{
-      method:'POST',keepalive:true,
-      headers:{'Content-Type':'application/json','apikey':'sb_publishable_9KVjAV4KehTzuwTCcxlAuQ_6U9CNZ4y','Authorization':'Bearer sb_publishable_9KVjAV4KehTzuwTCcxlAuQ_6U9CNZ4y'},
-      body:JSON.stringify({p_token:token})
-    });
-  }catch(e){console.warn('Dispo-Abmeldung beim Schließen konnte nicht bestätigt werden.',e);}
-});
+/* Kein automatisches Logout bei pagehide: Heartbeat und explizite Abmeldung steuern die Sitzung. */
 supaLoad().catch(error=>{
   syncLabel.textContent='Supabase Fehler';
   toast('Supabase-Verbindung fehlgeschlagen.');
